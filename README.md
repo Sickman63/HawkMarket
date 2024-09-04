@@ -1,6 +1,6 @@
-# Virtual Stock Exchange Simulator
+# HawkMarket
 
-Welcome to the Virtual Stock Exchange Simulator project! This project is designed to simulate a stock exchange environment where users can trade stocks, manage portfolios, and view leaderboards.
+Welcome to the HawkMarket Virtual Stock Exchange Simulator! This project is designed to simulate a stock exchange environment where users can trade stocks, manage portfolios, and view leaderboards.
 
 ## Table of Contents
 
@@ -16,7 +16,7 @@ Welcome to the Virtual Stock Exchange Simulator project! This project is designe
 
 ## Project Overview
 
-The Virtual Stock Exchange Simulator is a web application that allows users to:
+HawkMarket is a web application that allows users to:
 - Register and log in to their accounts.
 - View real-time stock updates.
 - Manage their stock portfolios.
@@ -117,9 +117,7 @@ To set up the project locally, follow these steps:
 
 Design wireframes and interactive mockups are created using Figma. Refer to the `Figma` folder for design assets and prototypes.
 
-## Contributing
-
-We welcome contributions to this project! Please follow these guidelines:
+## How to Update
 
 1. Fork the repository.
 2. Create a new branch (`git checkout -b feature/your-feature`).
