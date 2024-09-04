@@ -43,12 +43,12 @@ To set up the project locally, follow these steps:
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/yourusername/virtual-stock-exchange-simulator.git
+   git clone https://github.com/Sickman63/HawkMarket
    ```
 
 2. **Navigate to the Project Directory**:
    ```bash
-   cd virtual-stock-exchange-simulator
+   cd HawkMarket
    ```
 
 3. **Install Dependencies**:
@@ -127,13 +127,6 @@ We welcome contributions to this project! Please follow these guidelines:
 4. Push to the branch (`git push origin feature/your-feature`).
 5. Create a pull request.
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-Thank you for contributing to the Virtual Stock Exchange Simulator project!
+Thank you for using HawkMarket!
 ```
 
-Feel free to adjust the content to better fit your project's specifics or to include any additional sections that might be relevant.
