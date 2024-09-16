@@ -1,21 +1,28 @@
-// Import required modules
 const express = require('express');
-const cors = require('cors');
-
-// Initialize the app
+const { Sequelize, User, Stock, Transaction } = require('./models'); // Adjust imports as needed
 const app = express();
+const port = process.env.PORT || 3000;
 
-// Use middleware
-app.use(cors());
-app.use(express.json()); // Allows the app to handle JSON requests
+app.use(express.json());
 
-// Define a route
+// Test route
 app.get('/', (req, res) => {
-  res.send('Welcome to the Stock Simulator Backend');
+  res.send('Stock Trading Simulator Backend');
 });
 
-// Start the server
-const PORT = process.env.PORT || 3500;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Sync database
+const sequelize = new Sequelize('trading_sim', 'postgres', 'temppass', {
+  host: '127.0.0.1',
+  dialect: 'postgres',
+});
+
+sequelize.sync().then(() => {
+  console.log('Connected to PostgreSQL database!');
+}).catch((err) => {
+  console.error('Unable to connect to the database:', err);
+});
+
+// Start server
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
