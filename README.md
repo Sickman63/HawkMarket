@@ -31,7 +31,7 @@ HawkMarket is a web application that allows users to:
 
 ## Tech Stack
 
-- **Frontend**: React, Redux, Tailwind CSS
+- **Frontend**: React, Redux, Axios
 - **Backend**: Node.js, Express
 - **Database**: PostgreSQL
 - **Design**: Figma for UI/UX wireframes and mockups
