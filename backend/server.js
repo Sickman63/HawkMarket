@@ -1,7 +1,7 @@
 const express = require('express');
 const { Sequelize, User, Stock, Transaction } = require('./models'); // Adjust imports as needed
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 app.use(express.json());
 
