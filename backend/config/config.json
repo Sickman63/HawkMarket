@@ -1,9 +1,9 @@
 {
   "development": {
-    "username": "postgres",
-    "password": "temppass",
-    "database": "trading_sim",
-    "host": "127.0.0.1",
+    "username": "admin",
+    "password": "admin",
+    "database": "hawkmark",
+    "host": "10.21.6.100",
     "dialect": "postgres",
     "dialectOptions": {
       "ssl": false
