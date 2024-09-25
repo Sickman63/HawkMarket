@@ -4,24 +4,20 @@
     "password": "admin",
     "database": "hawkmark",
     "host": "10.21.6.100",
-    "dialect": "postgres",
-    "dialectOptions": {
-      "ssl": false
-    }
-    
+    "dialect": "postgres"    
   },
   "test": {
-    "username": "root",
-    "password": null,
-    "database": "database_test",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
+    "username": "admin",
+    "password": "admin",
+    "database": "hawkmark_test",
+    "host": "10.21.6.100",
+    "dialect": "postgres"
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
+    "username": "admin",
+    "password": "admin",
+    "database": "hawkmark",
+    "host": "10.21.6.100",
+    "dialect": "postgres"
   }
 }

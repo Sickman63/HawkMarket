@@ -11,8 +11,8 @@ app.get('/', (req, res) => {
 });
 
 // Sync database
-const sequelize = new Sequelize('trading_sim', 'postgres', 'temppass', {
-  host: '127.0.0.1',
+const sequelize = new Sequelize('hawkmark', 'admin', 'admin', {
+  host: '10.21.6.100',
   dialect: 'postgres',
 });
 
