@@ -1,55 +1,29 @@
-'use strict';
-const { Model } = require('sequelize');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database'); // Adjust the path as needed
 
-module.exports = (sequelize, DataTypes) => {
-  class User extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // A user can have many transactions
-      User.hasMany(models.Transaction, {
-        foreignKey: 'userId',
-        as: 'transactions'
-      });
-    }
-  }
+const User = sequelize.define('User', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  username: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+}, {
+  tableName: 'users', // Ensure this matches your actual table name
+  timestamps: false,
+});
 
-  User.init(
-    {
-      username: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true, // Ensure usernames are unique
-        validate: {
-          notEmpty: true, // Do not allow empty usernames
-        }
-      },
-      email: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-        validate: {
-          isEmail: true, // Validates the format of the email
-        }
-      },
-      password: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-          len: [8, 100], // Ensure password is between 8 and 100 characters
-        }
-      }
-    },
-    {
-      sequelize,
-      modelName: 'User',
-      tableName: 'users', // Explicitly specifying the table name
-      timestamps: true, // Adds createdAt and updatedAt fields
-    }
-  );
-
-  return User;
-};
+module.exports = User;

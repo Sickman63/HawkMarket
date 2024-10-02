@@ -21,18 +21,25 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   try {
+    // Find the user by username
     const user = await User.findOne({ where: { username } });
     if (!user) {
-      return res.status(400).json({ error: 'Invalid username or password' });
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(400).json({ error: 'Invalid username or password' });
+
+    // Compare the provided password with the hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
+
+    // Generate a JWT token
     const token = jwt.sign({ userId: user.id }, 'your_jwt_secret', { expiresIn: '1h' });
+
+    // Send the token to the client
     res.json({ token });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
