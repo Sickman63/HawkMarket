@@ -4,7 +4,7 @@
     "password": "pass",
     "database": "hawkmark",
     "host": "localhost",
-    "dialect": "postgres"    
+    "dialect": "postgres"
   },
   "test": {
     "username": "postgres",
