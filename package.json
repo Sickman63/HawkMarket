@@ -1,0 +1,12 @@
+{
+  "name": "hawkmarket",
+  "version": "1.0.0",
+  "description": "Welcome to the HawkMarket Virtual Stock Exchange Simulator! This project is designed to simulate a stock exchange environment where users can trade stocks, manage portfolios, and view leaderboards.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
