@@ -1,0 +1,28 @@
+--This is for entering data into tables
+--Use for a baseline
+--Allow scraper to access or input into tabels
+
+--Creates a value to put into users
+Insert into users(user_ID, username, passwords)
+Values (1, hawkCEO, twoA);
+
+--Creates a value to put into stocks
+Insert into stocks(stock_id, price, total_stocks, stock_name, sold_stocks)
+Values (1, 100000, 420, BALLZ, 1);
+
+--Creates a value to put into inventory
+--Every account should automaticly be created with an Inventory with 1 mill
+Insert into inventory (inverntory_ID, user_ID, bank_Total, in_Stocks)
+Values (1, 1, 1000000, 0);
+
+--Trade history should be inserted into whenever a person makes a trade
+
+--user_Roles, invStocks should be automaticly updated when new user is created
+
+--Creates the leaduerboard
+--Displays the top 100 people
+--use queary based on earnings in decreasing quality
+--when stocks increase in value is when earnings are added
+--also when stocks are sold for a profit 
+Insert into leaderboard (leaderboard_ID, user_ID, ranks, earnings)
+Values (1, 1, 1, 0);
