@@ -3,21 +3,21 @@
     "username": "admin",
     "password": "admin",
     "database": "hawkmark",
-    "host": "10.21.6.100",
+    "host": "localhost",
     "dialect": "postgres"
   },
   "test": {
     "username": "admin",
     "password": "admin",
     "database": "hawkmark_test",
-    "host": "10.21.6.100",
+    "host": "localhost",
     "dialect": "postgres"
   },
   "production": {
     "username": "admin",
     "password": "admin",
     "database": "hawkmark",
-    "host": "10.21.6.100",
+    "host": "localhost",
     "dialect": "postgres"
   }
 }

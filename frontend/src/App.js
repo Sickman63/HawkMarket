@@ -1,17 +1,21 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Login from './components/Login'; // Adjust the import path as needed
-import Home from './components/Home'; // Create a simple Home component
+import Home from './components/Home';
+import SignUp from './components/SignUp';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard.js';
 
-const App = () => {
+function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </Router>
   );
-};
+}
 
 export default App;
