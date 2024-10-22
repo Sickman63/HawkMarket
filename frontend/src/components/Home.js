@@ -1,7 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaChartLine, FaUserPlus, FaSignInAlt } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const Container = styled.div`
   display: flex;
@@ -9,42 +8,24 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-  text-align: center;
-  padding: 2rem;
+  background-color: #f5f5f5;
 `;
 
-const Title = styled.h1`
-  font-size: 3rem;
-  color: #333;
-  margin-bottom: 1rem;
-`;
-
-const Overview = styled.p`
-  font-size: 1.2rem;
-  color: #666;
-  margin-bottom: 2rem;
-  max-width: 600px;
-`;
-
-const Features = styled.div`
+const Header = styled.header`
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-bottom: 2rem;
 `;
 
-const Feature = styled.div`
-  display: flex;
-  align-items: center;
-  margin: 1rem 0;
-  font-size: 1.1rem;
-  color: #444;
+const Logo = styled.h1`
+  font-size: 2.5rem;
+  color: #282c34;
 `;
 
-const Icon = styled.div`
-  margin-right: 0.5rem;
-  color: #61dafb;
+const Nav = styled.nav`
+  display: flex;
+  gap: 1rem;
 `;
 
 const Button = styled(Link)`
@@ -67,26 +48,19 @@ const Button = styled(Link)`
 const Home = () => {
   return (
     <Container>
-      <Title>Welcome to the Stock Trading Simulator</Title>
-      <Overview>
-        boutta cum!
-      </Overview>
-      <Features>
-        <Feature>
-          <Icon><FaChartLine size={24} /></Icon>
-          Real-time market updates and analytics
-        </Feature>
-        <Feature>
-          <Icon><FaUserPlus size={24} /></Icon>
-          Easy sign-up and account management
-        </Feature>
-        <Feature>
-          <Icon><FaSignInAlt size={24} /></Icon>
-          Secure login and personalized dashboard
-        </Feature>
-      </Features>
-      <Button to="/signup">Sign Up</Button>
-      <Button to="/login">Login</Button>
+      <Header>
+        <Logo>Virtual Stock Exchange</Logo>
+        <Nav>
+          <Button to="/signup">Sign Up</Button>
+          <Button to="/login">Login</Button>
+          <Button to="/dashboard">Dashboard</Button>
+          <Button to="/buy-sell">Buy & Sell Stocks</Button>
+          <Button to="/portfolio">Portfolio Overview</Button>
+          <Button to="/leaderboard">Leaderboards</Button>
+          <Button to="/transaction-history">Transaction History</Button>
+        </Nav>
+      </Header>
+      {/* Other components or elements */}
     </Container>
   );
 };
