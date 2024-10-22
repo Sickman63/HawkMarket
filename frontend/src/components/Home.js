@@ -49,7 +49,7 @@ const Home = () => {
   return (
     <Container>
       <Header>
-        <Logo>Virtual Stock Exchange</Logo>
+        <Logo>Welcome to HawkMarket!</Logo>
         <Nav>
           <Button to="/signup">Sign Up</Button>
           <Button to="/login">Login</Button>
