@@ -1,6 +1,19 @@
 const request = require('supertest');
-const app = require('../server'); // Adjust the path as needed
-const { sequelize, User } = require('../models');
+const express = require('express');
+const bodyParser = require('body-parser');
+const { Sequelize } = require('sequelize');
+const authRoutes = require('../routes/auth');
+
+// Setup Express app
+const app = express();
+app.use(bodyParser.json());
+app.use('/api/auth', authRoutes);
+
+// Setup Sequelize
+const sequelize = new Sequelize('hawkmark', 'admin', 'admin', {
+  host: '73.176.120.218',
+  dialect: 'postgres',
+});
 
 beforeAll(async () => {
   await sequelize.sync({ force: true });
@@ -10,46 +23,50 @@ afterAll(async () => {
   await sequelize.close();
 });
 
-describe('POST /api/auth/register', () => {
+describe('POST /api/auth/signup', () => {
   it('should register a new user', async () => {
-    const res = await request(app)
-      .post('/api/auth/register')
+    const response = await request(app)
+      .post('/api/auth/signup')
       .send({
-        username: 'testuser',
-        password: 'password123',
-        email: 'testuser@example.com'
+        username: 'TestUser',
+        password: 'password123'
       });
-    expect(res.statusCode).toEqual(201);
-    expect(res.body).toHaveProperty('username', 'testuser');
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty('id');
+    expect(response.body).toHaveProperty('username', 'TestUser');
   });
 
   it('should not register a user with an existing username', async () => {
-    await User.create({
-      username: 'testuser',
-      password: 'password123',
-      email: 'testuser@example.com'
-    });
-
-    const res = await request(app)
-      .post('/api/auth/register')
+    await request(app)
+      .post('/api/auth/signup')
       .send({
-        username: 'testuser',
-        password: 'password123',
-        email: 'anotheremail@example.com'
+        username: 'TestUser',
+        password: 'password123'
       });
-    expect(res.statusCode).toEqual(400);
-    expect(res.body).toHaveProperty('error');
+
+    const response = await request(app)
+      .post('/api/auth/signup')
+      .send({
+        username: 'TestUser',
+        password: 'password123'
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('message', 'User already exists');
   });
 
-  it('should not register a user with an invalid email', async () => {
-    const res = await request(app)
-      .post('/api/auth/register')
+  it('should not register a user with a short password', async () => {
+    const response = await request(app)
+      .post('/api/auth/signup')
       .send({
-        username: 'newuser',
-        password: 'password123',
-        email: 'invalid-email'
+        username: 'TestUser',
+        password: 'short'
       });
-    expect(res.statusCode).toEqual(400);
-    expect(res.body).toHaveProperty('error');
+
+    // Expect a 400 status code indicating a bad request
+    expect(response.status).toBe(400);
+    // Expect the response body to have an error message indicating the password is too short
+    expect(response.body.errors[0]).toHaveProperty('msg', 'Password must be at least 6 characters long');
   });
 });

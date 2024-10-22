@@ -1,44 +1,35 @@
-// routes/auth.js
 const express = require('express');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const { User } = require('../models');
+const { body, validationResult } = require('express-validator');
+const { User } = require('../models'); // Ensure this path is correct
 const router = express.Router();
 
 // User Registration Endpoint
-router.post('/register', async (req, res) => {
-  const { username, password, email } = req.body;
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ username, password: hashedPassword, email });
-    res.status(201).json(user);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+router.post('/signup', [
+  body('username').notEmpty().withMessage('Username is required'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
   }
-});
 
-// User Login Endpoint
-router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   try {
-    // Find the user by username
-    const user = await User.findOne({ where: { username } });
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+    // Check if the user already exists
+    const existingUser = await User.findOne({ where: { username } });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Compare the provided password with the hashed password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Generate a JWT token
-    const token = jwt.sign({ userId: user.id }, 'your_jwt_secret', { expiresIn: '1h' });
-
-    // Send the token to the client
-    res.json({ token });
+    // Create a new user
+    const user = await User.create({ username, password: hashedPassword });
+    res.status(201).json(user);
   } catch (error) {
+    console.error('Error during user registration:', error);
     res.status(500).json({ error: error.message });
   }
 });

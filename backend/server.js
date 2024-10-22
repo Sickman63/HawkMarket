@@ -20,11 +20,11 @@ app.use('/api/auth', authRoutes);
 
 // Sync database
 const sequelize = new Sequelize('hawkmark', 'admin', 'admin', {
-  host: '10.21.6.100',
+  host: '73.176.120.218',
   dialect: 'postgres',
 });
 
-sequelize.sync().then(() => {
+sequelize.authenticate().then(() => {
   console.log('Connected to PostgreSQL database!');
 }).catch((err) => {
   console.error('Unable to connect to the database:', err);
