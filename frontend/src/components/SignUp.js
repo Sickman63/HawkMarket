@@ -52,6 +52,7 @@ const SignUp = () => {
     password: '',
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -60,10 +61,13 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/api/auth/signup', formData);
+      const response = await axios.post('http://localhost:3500/signup', formData);
+      setSuccess('User registered successfully');
+      setError('');
       console.log('User registered:', response.data);
     } catch (error) {
       setError('Error registering user');
+      setSuccess('');
       console.error('Error registering user:', error);
     }
   };
