@@ -20,7 +20,7 @@ app.use('/api/auth', authRoutes);
 
 // Sync database
 const sequelize = new Sequelize('hawkmark', 'admin', 'admin', {
-  host: '73.176.120.218',
+  host: 'localhost:5432',
   dialect: 'postgres',
 });
 
