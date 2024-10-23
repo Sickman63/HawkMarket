@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import axios from '../api/axiosConfig';
 import styled from 'styled-components';
-import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 const Container = styled.div`
   display: flex;
@@ -9,32 +9,18 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-  text-align: center;
-  padding: 2rem;
-`;
-
-const Title = styled.h1`
-  font-size: 3rem;
-  color: #333;
-  margin-bottom: 1rem;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 300px;
 `;
 
 const Input = styled.input`
-  margin: 0.5rem 0;
-  padding: 0.75rem;
-  width: 100%;
-  max-width: 300px;
+  margin-bottom: 10px;
+  padding: 10px;
+  font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
 `;
@@ -58,49 +44,56 @@ const Button = styled.button`
 const LinkText = styled(Link)`
   color: #61dafb;
   text-decoration: none;
-  margin-top: 1rem;
-
-  &:hover {
-    text-decoration: underline;
-  }
 `;
 
 const SignUp = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+  });
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('/api/signup', { email, password });
-      navigate('/dashboard');
+      const response = await axios.post('/api/auth/signup', formData);
+      console.log('User registered:', response.data);
     } catch (error) {
-      console.error('Error signing up:', error);
+      setError('Error registering user');
+      console.error('Error registering user:', error);
     }
   };
 
   return (
     <Container>
-      <Title>Sign Up</Title>
       <Form onSubmit={handleSubmit}>
+        <h2>Sign Up</h2>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
         <Input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={formData.username}
+          onChange={handleChange}
           required
         />
         <Input
           type="password"
+          name="password"
           placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={formData.password}
+          onChange={handleChange}
           required
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit">Sign Up</Button>
+        <p>
+          Already have an account? <LinkText to="/login">Login</LinkText>
+        </p>
       </Form>
-      <LinkText to="/login">Already have an account? Login here</LinkText>
     </Container>
   );
 };
