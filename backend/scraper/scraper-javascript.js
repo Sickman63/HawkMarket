@@ -31,6 +31,7 @@ newStock = function(symbol, market) {
     let newStock = new Stock(symbol, market);
     stockList.push(newStock);
 }
+// all test stocks
 newStock('F', 'NYSE');
 newStock('NVDA', 'NASDAQ');
 newStock('TSLA', 'NASDAQ');
@@ -73,9 +74,8 @@ newStock('AMD', 'NASDAQ');
 newStock('BBY', 'NYSE');
 newStock('JPM', 'NYSE');
 
-//fake stock to make sure it all works properly
-newStock('LOL', 'NYSE');
-//console.log(stockList);
+//fake stock to check failure handling
+//newStock('LOL', 'NYSE');
 
 async function asyncFindStockInfoFromURL(url) {
     const response = await fetch(url);
@@ -139,7 +139,16 @@ async function asyncFindStockInfoFromSymbol(symbol, market) {
     return await asyncFindStockInfoFromURL(url);
 }
 
+async function asyncFindAllStockInfo() {
+    allStockInfo = [];
+    for (stock in stockList) {
+        allStockInfo.push(await asyncFindStockInfoFromSymbol(stock.symbol, stock.market));
+    }
+    return allStockInfo;
+}
+
 // loop to test all stocks in stockList
+/*
 for (let i = 0; i < stockList.length; i++) {
     (async () =>{
         info = await asyncFindStockInfoFromSymbol(stockList[i].symbol, stockList[i].market);
@@ -147,3 +156,4 @@ for (let i = 0; i < stockList.length; i++) {
         console.log(info.name + ": $" + info.price);
     })();
 }
+*/
