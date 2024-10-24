@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json()); // Allows the app to handle JSON requests
 
 // Initialize Sequelize
-const sequelize = new Sequelize('hawkmark', 'admin', 'admin', {
+const sequelize = new Sequelize('hawkmark', 'realuser', 'supadmin', {
   host: '73.176.120.218',
   dialect: 'postgres',
 });
@@ -40,9 +40,10 @@ app.post('/signup', async (req, res) => {
   const { username, password } = req.body;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({ id, username, password: hashedPassword, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP});
+    const newUser = await User.create({username: username, password: hashedPassword});
     res.status(201).json({ message: 'User created successfully', user: newUser });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ message: 'Error creating user', error });
   }
 });
