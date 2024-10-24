@@ -5,14 +5,17 @@ import { useNavigate } from 'react-router-dom';
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('/api/login', { username, password });
+      const response = await axios.post('http://localhost:3500/login', { username, password });
+      localStorage.setItem('token', response.data.token);
       navigate('/dashboard');
     } catch (error) {
+      setError('Error logging in');
       console.error('Error logging in:', error);
     }
   };
