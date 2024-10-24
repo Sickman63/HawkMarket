@@ -53,11 +53,6 @@ const Home = () => {
         <Nav>
           <Button to="/signup">Sign Up</Button>
           <Button to="/login">Login</Button>
-          <Button to="/dashboard">Dashboard</Button>
-          <Button to="/buy-sell">Buy & Sell Stocks</Button>
-          <Button to="/portfolio">Portfolio Overview</Button>
-          <Button to="/leaderboard">Leaderboards</Button>
-          <Button to="/transaction-history">Transaction History</Button>
         </Nav>
       </Header>
       {/* Other components or elements */}

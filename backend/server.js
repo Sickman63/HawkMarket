@@ -14,7 +14,7 @@ app.use(express.json()); // Allows the app to handle JSON requests
 
 // Initialize Sequelize
 const sequelize = new Sequelize('hawkmark', 'admin', 'admin', {
-  host: 'localhost',
+  host: '73.176.120.218',
   dialect: 'postgres',
 });
 
