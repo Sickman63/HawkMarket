@@ -1,13 +1,5 @@
-/** 
- * William Irwin III
- * Google Finance Scraper for HawkMarket
- * 
- * 
- */
-
 const cheerio = require('cheerio');
 
-/*
 (async () => {
     const url = 'https://www.google.com/finance/quote/F:NYSE?hl=en';
     const response = await fetch(url);
@@ -18,7 +10,7 @@ const cheerio = require('cheerio');
     const index = $.html().indexOf("YMlKec fxKbKc")
     console.log($.html().slice(index, index + 100));
 })();
-*/
+
 
 let stockList = []
 class Stock {
