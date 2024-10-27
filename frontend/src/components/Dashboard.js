@@ -68,7 +68,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchPortfolio = async () => {
       try {
-        const response = await axios.get('/api/portfolio');
+        const response = await axios.get('http://localhost:3500/api/portfolio');
         setPortfolio(response.data);
       } catch (error) {
         console.error('Error fetching portfolio:', error);
@@ -77,7 +77,7 @@ const Dashboard = () => {
 
     const fetchMarketUpdates = async () => {
       try {
-        const response = await axios.get('/api/stocks');
+        const response = await axios.get('http://localhost:3500/api/stocks');
         setMarketUpdates(response.data);
       } catch (error) {
         console.error('Error fetching market updates:', error);
