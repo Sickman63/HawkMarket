@@ -8,6 +8,7 @@ import BuySellStocks from './components/BuySellStocks';
 import PortfolioOverview from './components/PortfolioOverview';
 import Leaderboards from './components/Leaderboards';
 import TransactionHistory from './components/TransactionHistory';
+import StockList from './components/StockList';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/stocks" element={<StockList />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/buy-sell" element={<BuySellStocks />} />
         <Route path="/portfolio" element={<PortfolioOverview />} />

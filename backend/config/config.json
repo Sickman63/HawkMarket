@@ -1,7 +1,7 @@
 {
   "development": {
-    "username": "admin",
-    "password": "admin",
+    "username": "realuser",
+    "password": "supadmin",
     "database": "hawkmark",
     "host": "73.176.120.218",
     "dialect": "postgres"

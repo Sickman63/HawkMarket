@@ -62,14 +62,30 @@ const Button = styled(Link)`
 `;
 
 const Dashboard = () => {
-  useEffect(() => {
-    axios.get('/api/portfolio')
-      .then(response => console.log(response.data))
-      .catch(error => console.error('Error fetching portfolio:', error));
+  const [portfolio, setPortfolio] = useState([]);
+  const [marketUpdates, setMarketUpdates] = useState([]);
 
-    axios.get('/api/market-updates')
-      .then(response => console.log(response.data))
-      .catch(error => console.error('Error fetching market updates:', error));
+  useEffect(() => {
+    const fetchPortfolio = async () => {
+      try {
+        const response = await axios.get('/api/portfolio');
+        setPortfolio(response.data);
+      } catch (error) {
+        console.error('Error fetching portfolio:', error);
+      }
+    };
+
+    const fetchMarketUpdates = async () => {
+      try {
+        const response = await axios.get('/api/stocks');
+        setMarketUpdates(response.data);
+      } catch (error) {
+        console.error('Error fetching market updates:', error);
+      }
+    };
+
+    fetchPortfolio();
+    fetchMarketUpdates();
   }, []);
 
   return (
@@ -79,11 +95,43 @@ const Dashboard = () => {
       </Header>
       <Section>
         <SectionTitle>Portfolio Overview</SectionTitle>
-        {/* Render portfolio data */}
+        <table>
+          <thead>
+            <tr>
+              <th>Stock Symbol</th>
+              <th>Quantity</th>
+            </tr>
+          </thead>
+          <tbody>
+            {portfolio.map((stock) => (
+              <tr key={stock.stock_symbol}>
+                <td>{stock.stock_symbol}</td>
+                <td>{stock.quantity}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </Section>
       <Section>
         <SectionTitle>Market Updates</SectionTitle>
-        {/* Render market updates */}
+        <table>
+          <thead>
+            <tr>
+              <th>Symbol</th>
+              <th>Name</th>
+              <th>Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            {marketUpdates.map((stock) => (
+              <tr key={stock.symbol}>
+                <td>{stock.symbol}</td>
+                <td>{stock.name}</td>
+                <td>${stock.price}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </Section>
       <Nav>
         <Button to="/buy-sell">Buy & Sell Stocks</Button>

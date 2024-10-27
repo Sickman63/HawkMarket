@@ -4,6 +4,10 @@ const cors = require('cors');
 const { Sequelize, DataTypes } = require('sequelize');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const cheerio = require('cheerio');
+const fetch = require('node-fetch');
+const stockRoutes = require('./routes/stockRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 // Initialize the app
 const app = express();
@@ -28,44 +32,30 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  balance: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+    defaultValue: 10000.00, // Set a default starting balance
+  },
 });
+
+// Synchronize models with the database
+sequelize.sync()
+  .then(() => {
+    console.log('Database & tables created!');
+  })
+  .catch((error) => {
+    console.error('Error creating database & tables:', error);
+  });
 
 // Define a route
 app.get('/', (req, res) => {
   res.send('Welcome to the Stock Simulator Backend');
 });
 
-//signup route
-app.post('/signup', async (req, res) => {
-  const { username, password } = req.body;
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({username: username, password: hashedPassword});
-    res.status(201).json({ message: 'User created successfully', user: newUser });
-  } catch (error) {
-    console.log(error)
-    res.status(500).json({ message: 'Error creating user', error });
-  }
-});
-
-//login route
-app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-  try {
-    const user = await User.findOne({ where: { username } });
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid username or password' });
-    }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(400).json({ message: 'Invalid username or password' });
-    }
-    const token = jwt.sign({ userId: user.id }, 'your_jwt_secret', { expiresIn: '1h' });
-    res.status(200).json({ message: 'Login successful', token });
-  } catch (error) {
-    res.status(500).json({ message: 'Error logging in', error });
-  }
-});
+// Use routes
+app.use('/api/stocks', stockRoutes);
+app.use('/api/user', userRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3500;
