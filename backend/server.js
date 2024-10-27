@@ -65,7 +65,7 @@ app.post('/signup', async (req, res) => {
   }
 });
 
-//login route
+// Login route
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   try {

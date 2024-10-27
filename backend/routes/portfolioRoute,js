@@ -1,0 +1,47 @@
+// backend/models/portfolio.js
+'use strict';
+const { Model } = require('sequelize');
+
+module.exports = (sequelize, DataTypes) => {
+  class Portfolio extends Model {
+    static associate(models) {
+      Portfolio.belongsTo(models.User, { foreignKey: 'userId' });
+      Portfolio.belongsTo(models.Stock, { foreignKey: 'stockId' });
+    }
+  }
+
+  Portfolio.init(
+    {
+      userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      stockId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      quantity: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: {
+          min: 0,
+        },
+      },
+      purchasePrice: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        validate: {
+          min: 0,
+        },
+      },
+    },
+    {
+      sequelize,
+      modelName: 'Portfolio',
+      tableName: 'portfolios',
+      timestamps: true,
+    }
+  );
+
+  return Portfolio;
+};

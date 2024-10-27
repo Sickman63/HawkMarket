@@ -8,7 +8,7 @@ const Portfolio = () => {
   useEffect(() => {
     const fetchPortfolio = async () => {
       const token = localStorage.getItem('token');
-      const result = await axios.get('http://localhost:5000/api/portfolio', {
+      const result = await axios.get('http://localhost:3500/api/portfolioRoute', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPortfolio(result.data);
