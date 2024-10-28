@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const Container = styled.div`
   display: flex;
@@ -98,7 +98,6 @@ const Dashboard = () => {
   const [userInfo, setUserInfo] = useState({ username: '', balance: 0 });
   const [portfolio, setPortfolio] = useState([]);
   const [marketUpdates, setMarketUpdates] = useState([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -189,7 +188,7 @@ const Dashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {marketUpdates.map((stock) => (
+            {marketUpdates.slice(0, 3).map((stock) => (
               <tr key={stock.symbol}>
                 <Td>{stock.symbol}</Td>
                 <Td>{stock.name}</Td>
