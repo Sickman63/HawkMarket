@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
 import axios from 'axios';
+import styled from 'styled-components';
 
 const Container = styled.div`
   display: flex;
@@ -9,18 +9,6 @@ const Container = styled.div`
   justify-content: center;
   height: 100vh;
   background-color: #f5f5f5;
-`;
-
-const Header = styled.header`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 2rem;
-`;
-
-const Title = styled.h1`
-  font-size: 2.5rem;
-  color: #282c34;
 `;
 
 const Section = styled.section`
@@ -41,37 +29,28 @@ const SectionTitle = styled.h2`
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 1rem;
 `;
 
 const Th = styled.th`
-  padding: 0.75rem;
+  padding: 10px;
   background-color: #61dafb;
   color: white;
-  border: 1px solid #ddd;
+  text-align: left;
 `;
 
 const Td = styled.td`
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-`;
-
-const Input = styled.input`
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
 `;
 
 const Button = styled.button`
-  padding: 0.75rem;
-  font-size: 1rem;
-  color: white;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
   background-color: #61dafb;
   border: none;
   border-radius: 4px;
-  cursor: pointer;
+  color: white;
   transition: background-color 0.3s ease;
 
   &:hover {
@@ -79,48 +58,48 @@ const Button = styled.button`
   }
 `;
 
-const Footer = styled.footer`
-  margin-top: 2rem;
-  padding: 1rem;
-  background-color: #282c34;
-  color: white;
-  width: 100%;
-  text-align: center;
+const Input = styled.input`
+  margin-bottom: 10px;
+  padding: 10px;
+  font-size: 16px;
 `;
 
 const BuySellStocks = () => {
   const [stocks, setStocks] = useState([]);
   const [quantity, setQuantity] = useState('');
   const [price, setPrice] = useState('');
-  const [selectedStock, setSelectedStock] = useState(null);
 
   useEffect(() => {
-    axios.get('/api/stocks')
-      .then(response => setStocks(response.data))
-      .catch(error => console.error('Error fetching stocks:', error));
+    const fetchStocks = async () => {
+      try {
+        const response = await axios.get('http://localhost:3500/api/stocks');
+        setStocks(response.data);
+      } catch (error) {
+        console.error('Error fetching stocks:', error);
+      }
+    };
+
+    fetchStocks();
   }, []);
 
   const handleBuySell = (stock) => {
-    setSelectedStock(stock);
-    // Show confirmation modal (implementation not shown)
+    // Handle buy/sell logic here
+    console.log('Selected Stock:', stock);
   };
 
-  const handleConfirm = () => {
-    // Execute trade (implementation not shown)
-    setSelectedStock(null);
+  const handleConfirm = async () => {
+    // Handle confirm logic here
+    console.log('Confirming transaction');
   };
 
   return (
     <Container>
-      <Header>
-        <Title>Buy & Sell Stocks</Title>
-      </Header>
       <Section>
-        <SectionTitle>Stock Listings</SectionTitle>
+        <SectionTitle>Buy & Sell Stocks</SectionTitle>
         <Table>
           <thead>
             <tr>
-              <Th>Stock</Th>
+              <Th>Stock Name</Th>
               <Th>Price</Th>
               <Th>Change</Th>
               <Th>Volume</Th>
@@ -128,7 +107,7 @@ const BuySellStocks = () => {
             </tr>
           </thead>
           <tbody>
-            {stocks.map(stock => (
+            {stocks.map((stock) => (
               <tr key={stock.id}>
                 <Td>{stock.name}</Td>
                 <Td>{stock.price}</Td>
@@ -158,9 +137,6 @@ const BuySellStocks = () => {
         />
         <Button onClick={handleConfirm}>Confirm</Button>
       </Section>
-      <Footer>
-        <p>Stock market news ticker and platform support links</p>
-      </Footer>
     </Container>
   );
 };

@@ -1,27 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   height: 100vh;
   background-color: #f5f5f5;
+  padding: 20px;
 `;
 
 const Header = styled.header`
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 2rem;
+  justify-content: space-between;
+  width: 100%;
+  padding: 20px;
+  background-color: #282c34;
+  color: white;
+  border-radius: 8px;
+  margin-bottom: 20px;
 `;
 
 const Title = styled.h1`
   font-size: 2.5rem;
-  color: #282c34;
+  color: #61dafb;
+`;
+
+const UserInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+`;
+
+const Balance = styled.span`
+  font-size: 1.2rem;
+  color: #61dafb;
 `;
 
 const Section = styled.section`
@@ -37,6 +53,23 @@ const SectionTitle = styled.h2`
   font-size: 1.5rem;
   color: #282c34;
   margin-bottom: 1rem;
+`;
+
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+`;
+
+const Th = styled.th`
+  padding: 10px;
+  background-color: #61dafb;
+  color: white;
+  text-align: left;
+`;
+
+const Td = styled.td`
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
 `;
 
 const Nav = styled.nav`
@@ -62,14 +95,33 @@ const Button = styled(Link)`
 `;
 
 const Dashboard = () => {
+  const [userInfo, setUserInfo] = useState({ username: '', balance: 0 });
   const [portfolio, setPortfolio] = useState([]);
   const [marketUpdates, setMarketUpdates] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchPortfolio = async () => {
+    const fetchUserInfo = async () => {
+      const token = localStorage.getItem('token');
       try {
-        const response = await axios.get('http://localhost:3500/api/portfolio');
+        const result = await axios.get('http://localhost:3500/api/users/user-info', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setUserInfo(result.data);
+        console.log('User Info:', result.data);
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      }
+    };
+
+    const fetchPortfolio = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await axios.get('http://localhost:3500/api/portfolio', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         setPortfolio(response.data);
+        console.log('Portfolio:', response.data);
       } catch (error) {
         console.error('Error fetching portfolio:', error);
       }
@@ -79,11 +131,13 @@ const Dashboard = () => {
       try {
         const response = await axios.get('http://localhost:3500/api/stocks');
         setMarketUpdates(response.data);
+        console.log('Market Updates:', response.data);
       } catch (error) {
         console.error('Error fetching market updates:', error);
       }
     };
 
+    fetchUserInfo();
     fetchPortfolio();
     fetchMarketUpdates();
   }, []);
@@ -92,46 +146,58 @@ const Dashboard = () => {
     <Container>
       <Header>
         <Title>Dashboard</Title>
+        <UserInfo>
+          <span>{userInfo.username}</span>
+          <Balance>${userInfo.balance.toFixed(2)}</Balance>
+        </UserInfo>
       </Header>
       <Section>
         <SectionTitle>Portfolio Overview</SectionTitle>
-        <table>
+        <Table>
           <thead>
             <tr>
-              <th>Stock Symbol</th>
-              <th>Quantity</th>
+              <Th>Stock Symbol</Th>
+              <Th>Stock Name</Th>
+              <Th>Quantity</Th>
+              <Th>Purchase Price</Th>
+              <Th>Current Price</Th>
+              <Th>Total Value</Th>
             </tr>
           </thead>
           <tbody>
             {portfolio.map((stock) => (
               <tr key={stock.stock_symbol}>
-                <td>{stock.stock_symbol}</td>
-                <td>{stock.quantity}</td>
+                <Td>{stock.stock_symbol}</Td>
+                <Td>{stock.stock_name}</Td>
+                <Td>{stock.quantity}</Td>
+                <Td>${stock.purchase_price.toFixed(2)}</Td>
+                <Td>${stock.current_price.toFixed(2)}</Td>
+                <Td>${(stock.quantity * stock.current_price).toFixed(2)}</Td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </Table>
       </Section>
       <Section>
         <SectionTitle>Market Updates</SectionTitle>
-        <table>
+        <Table>
           <thead>
             <tr>
-              <th>Symbol</th>
-              <th>Name</th>
-              <th>Price</th>
+              <Th>Symbol</Th>
+              <Th>Name</Th>
+              <Th>Price</Th>
             </tr>
           </thead>
           <tbody>
             {marketUpdates.map((stock) => (
               <tr key={stock.symbol}>
-                <td>{stock.symbol}</td>
-                <td>{stock.name}</td>
-                <td>${stock.price}</td>
+                <Td>{stock.symbol}</Td>
+                <Td>{stock.name}</Td>
+                <Td>${stock.price}</Td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </Table>
       </Section>
       <Nav>
         <Button to="/buy-sell">Buy & Sell Stocks</Button>
