@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from '../api/axiosConfig';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
   display: flex;
@@ -53,6 +53,7 @@ const SignUp = () => {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -65,6 +66,7 @@ const SignUp = () => {
       setSuccess('User registered successfully');
       setError('');
       console.log('User registered:', response.data);
+      navigate('/dashboard');
     } catch (error) {
       setError('Error registering user');
       setSuccess('');
