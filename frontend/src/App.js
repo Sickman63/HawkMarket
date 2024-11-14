@@ -9,22 +9,27 @@ import PortfolioOverview from './components/PortfolioOverview';
 import Leaderboards from './components/Leaderboards';
 import TransactionHistory from './components/TransactionHistory';
 import StockList from './components/StockList';
+import GlobalStyle from './globalStyles';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/stocks" element={<StockList />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/buy-sell" element={<BuySellStocks />} />
-        <Route path="/portfolio" element={<PortfolioOverview />} />
-        <Route path="/leaderboard" element={<Leaderboards />} />
-        <Route path="/transaction-history" element={<TransactionHistory />} />
-      </Routes>
-    </Router>
+    <>
+      {/* Apply the global styles */}
+      <GlobalStyle />
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/stocks" element={<StockList />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/buy-sell" element={<BuySellStocks />} />
+          <Route path="/portfolio" element={<PortfolioOverview />} />
+          <Route path="/leaderboard" element={<Leaderboards />} />
+          <Route path="/transaction-history" element={<TransactionHistory />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
 

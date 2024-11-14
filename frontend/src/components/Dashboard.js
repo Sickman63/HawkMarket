@@ -2,156 +2,179 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { Line } from 'react-chartjs-2';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  height: 100vh;
-  background-color: #f5f5f5;
   padding: 20px;
+  background-color: #1c1e26;
+  color: #f5f5f5;
 `;
 
 const Header = styled.header`
-  display: flex;
-  justify-content: space-between;
   width: 100%;
   padding: 20px;
-  background-color: #282c34;
-  color: white;
-  border-radius: 8px;
-  margin-bottom: 20px;
-`;
-
-const Title = styled.h1`
-  font-size: 2.5rem;
-  color: #61dafb;
-`;
-
-const UserInfo = styled.div`
+  background-color: #2c3e50;
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 `;
 
-const Balance = styled.span`
-  font-size: 1.2rem;
-  color: #61dafb;
+const Nav = styled.nav`
+  display: flex;
+  background-color: #2e3241;
+  width: 100%;
+  padding: 1rem;
+  justify-content: center;
+`;
+
+const NavLink = styled(Link)`
+  margin: 0 1.5rem;
+  padding: 0.5rem 1rem;
+  color: #f5f5f5;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #4a90e2;
+  }
+`;
+
+const OverviewSection = styled.section`
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  padding: 1rem;
+  background-color: #2e3241;
+  border-radius: 8px;
+  margin: 20px 0;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+`;
+
+const StatBlock = styled.div`
+  text-align: center;
+  flex: 1;
+  padding: 1rem;
 `;
 
 const Section = styled.section`
   width: 80%;
-  margin-bottom: 2rem;
-  background-color: white;
-  padding: 1rem;
+  background-color: #2e3241;
+  padding: 1.5rem;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-`;
-
-const SectionTitle = styled.h2`
-  font-size: 1.5rem;
-  color: #282c34;
-  margin-bottom: 1rem;
+  margin-top: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 `;
 
 const Table = styled.table`
   width: 100%;
+  margin-top: 1rem;
   border-collapse: collapse;
+  color: #f5f5f5;
 `;
 
 const Th = styled.th`
   padding: 10px;
-  background-color: #61dafb;
-  color: white;
+  background-color: #4a90e2;
   text-align: left;
 `;
 
 const Td = styled.td`
   padding: 10px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #444;
 `;
 
-const Nav = styled.nav`
-  display: flex;
-  gap: 1rem;
-`;
-
-const Button = styled(Link)`
-  margin: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  color: white;
-  background-color: #61dafb;
-  border: none;
-  border-radius: 4px;
-  text-decoration: none;
-  display: inline-block;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #21a1f1;
-  }
+const PerformanceChart = styled.div`
+  width: 100%;
+  height: 400px;
+  margin-top: 2rem;
 `;
 
 const Dashboard = () => {
-  const [userInfo, setUserInfo] = useState({ username: '', balance: 0 });
+  const [userInfo, setUserInfo] = useState({ username: '', balance: 100000, buyingPower: 99982, dailyChange: 0 });
   const [portfolio, setPortfolio] = useState([]);
   const [marketUpdates, setMarketUpdates] = useState([]);
+  const [performanceData, setPerformanceData] = useState({
+    labels: [],
+    datasets: []
+  });
 
   useEffect(() => {
-    const fetchUserInfo = async () => {
+    const fetchData = async () => {
       const token = localStorage.getItem('token');
       try {
-        const result = await axios.get('http://localhost:3500/api/users/user-info', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const result = await axios.get('/api/users/user-info', { headers: { Authorization: `Bearer ${token}` } });
         setUserInfo(result.data);
-        console.log('User Info:', result.data);
-      } catch (error) {
-        console.error('Error fetching user info:', error);
-      }
-    };
 
-    const fetchPortfolio = async () => {
-      const token = localStorage.getItem('token');
-      try {
-        const response = await axios.get('http://localhost:3500/api/portfolio', {
-          headers: { Authorization: `Bearer ${token}` }
+        const portfolioRes = await axios.get('/api/portfolio', { headers: { Authorization: `Bearer ${token}` } });
+        setPortfolio(portfolioRes.data);
+
+        const marketRes = await axios.get('/api/stocks');
+        setMarketUpdates(marketRes.data);
+
+        setPerformanceData({
+          labels: ['1W', '1M', '3M', '6M', '1Y'],
+          datasets: [{
+            label: 'Account Value',
+            data: [100000, 101500, 98000, 102000, 105000],
+            fill: true,
+            borderColor: '#4a90e2',
+            backgroundColor: 'rgba(74, 144, 226, 0.2)'
+          }]
         });
-        setPortfolio(response.data);
-        console.log('Portfolio:', response.data);
+
       } catch (error) {
-        console.error('Error fetching portfolio:', error);
+        console.error('Error fetching data', error);
       }
     };
-
-    const fetchMarketUpdates = async () => {
-      try {
-        const response = await axios.get('http://localhost:3500/api/stocks');
-        setMarketUpdates(response.data);
-        console.log('Market Updates:', response.data);
-      } catch (error) {
-        console.error('Error fetching market updates:', error);
-      }
-    };
-
-    fetchUserInfo();
-    fetchPortfolio();
-    fetchMarketUpdates();
+    fetchData();
   }, []);
 
   return (
     <Container>
+      <Nav>
+        <NavLink to="/portfolio">Portfolio</NavLink>
+        <NavLink to="/buy-sell">Trade</NavLink>
+        <NavLink to="/leaderboard">Leaderboard</NavLink>
+      </Nav>
+
       <Header>
-        <Title>Dashboard</Title>
-        <UserInfo>
-          <span>{userInfo.username}</span>
-          <Balance>${userInfo.balance.toFixed(2)}</Balance>
-        </UserInfo>
+        <h1>Dashboard</h1>
+        <div>
+          <p>Balance: ${userInfo.balance.toFixed(2)}</p>
+          <p>Buying Power: ${userInfo.buyingPower.toFixed(2)}</p>
+        </div>
       </Header>
+
+      <OverviewSection>
+        <StatBlock>
+          <h3>Account Value</h3>
+          <p>${userInfo.balance.toFixed(2)}</p>
+        </StatBlock>
+        <StatBlock>
+          <h3>Buying Power</h3>
+          <p>${userInfo.buyingPower.toFixed(2)}</p>
+        </StatBlock>
+        <StatBlock>
+          <h3>Today's Change</h3>
+          <p style={{ color: userInfo.dailyChange < 0 ? 'red' : 'green' }}>
+            ${userInfo.dailyChange.toFixed(2)} (0.72%)
+          </p>
+        </StatBlock>
+      </OverviewSection>
+
+      <PerformanceChart>
+        {performanceData.labels.length > 0 && <Line data={performanceData} />}
+      </PerformanceChart>
+
       <Section>
-        <SectionTitle>Portfolio Overview</SectionTitle>
+        <h2>Portfolio Overview</h2>
         <Table>
           <thead>
             <tr>
@@ -164,21 +187,26 @@ const Dashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {portfolio.map((stock) => (
-              <tr key={stock.stock_symbol}>
-                <Td>{stock.stock_symbol}</Td>
-                <Td>{stock.stock_name}</Td>
+            {portfolio.length > 0 ? portfolio.map(stock => (
+              <tr key={stock.symbol}>
+                <Td>{stock.symbol}</Td>
+                <Td>{stock.name}</Td>
                 <Td>{stock.quantity}</Td>
-                <Td>${stock.purchase_price.toFixed(2)}</Td>
-                <Td>${stock.current_price.toFixed(2)}</Td>
-                <Td>${(stock.quantity * stock.current_price).toFixed(2)}</Td>
+                <Td>${stock.purchasePrice.toFixed(2)}</Td>
+                <Td>${stock.currentPrice.toFixed(2)}</Td>
+                <Td>${(stock.quantity * stock.currentPrice).toFixed(2)}</Td>
               </tr>
-            ))}
+            )) : (
+              <tr>
+                <Td colSpan="6">No portfolio data available</Td>
+              </tr>
+            )}
           </tbody>
         </Table>
       </Section>
+
       <Section>
-        <SectionTitle>Market Updates</SectionTitle>
+        <h2>Market Updates</h2>
         <Table>
           <thead>
             <tr>
@@ -188,22 +216,20 @@ const Dashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {marketUpdates.slice(0, 3).map((stock) => (
+            {marketUpdates.length > 0 ? marketUpdates.slice(0, 5).map(stock => (
               <tr key={stock.symbol}>
                 <Td>{stock.symbol}</Td>
                 <Td>{stock.name}</Td>
                 <Td>${stock.price}</Td>
               </tr>
-            ))}
+            )) : (
+              <tr>
+                <Td colSpan="3">No market updates available</Td>
+              </tr>
+            )}
           </tbody>
         </Table>
       </Section>
-      <Nav>
-        <Button to="/buy-sell">Buy & Sell Stocks</Button>
-        <Button to="/portfolio">Portfolio Overview</Button>
-        <Button to="/leaderboard">Leaderboards</Button>
-        <Button to="/transaction-history">Transaction History</Button>
-      </Nav>
     </Container>
   );
 };
