@@ -1,4 +1,34 @@
-// Import required modules
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
+const sequelize = require('./database/connection');
+
+const authRoutes = require('./routes/authRoutes');
+const tradeRoutes = require('./routes/tradeRoutes');
+const stockRoutes = require('./routes/stockRoutes');
+const leaderboardRoutes = require('./routes/leaderboardRoutes');
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+// Register routes
+app.use('/api/auth', authRoutes);
+app.use('/api/trades', tradeRoutes);
+app.use('/api/stocks', stockRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
+
+// Sync database and start server
+sequelize.sync().then(() => {
+    app.listen(3500, () => {
+        console.log('Server running on port 3500');
+    });
+}).catch((error) => {
+    console.error('Unable to connect to the database:', error);
+});
+
+/*
 const express = require('express');
 const cors = require('cors');
 const { Sequelize, DataTypes } = require('sequelize');
@@ -115,7 +145,7 @@ async function asyncFindStockInfoFromURL(url) {
       price: -1,
       symbol: symbol,
       market: market,
-      name: "invalid stock: " + symbol + ":" + market
+      name: `invalid stock: ${symbol}:${market}`
     };
   }
 
@@ -163,3 +193,4 @@ const PORT = process.env.PORT || 3500;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+*/
