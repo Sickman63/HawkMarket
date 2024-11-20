@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { Line } from 'react-chartjs-2';
 
 const Container = styled.div`
   display: flex;
@@ -90,45 +89,21 @@ const Td = styled.td`
   border-bottom: 1px solid #444;
 `;
 
-const PerformanceChart = styled.div`
-  width: 100%;
-  height: 400px;
-  margin-top: 2rem;
-`;
-
 const Dashboard = () => {
-  const [userInfo, setUserInfo] = useState({ username: '', balance: 100000, buyingPower: 99982, dailyChange: 0 });
-  const [portfolio, setPortfolio] = useState([]);
-  const [marketUpdates, setMarketUpdates] = useState([]);
-  const [performanceData, setPerformanceData] = useState({
-    labels: [],
-    datasets: []
-  });
+  const [userInfo, setUserInfo] = useState({ username: '', balance: 0, buyingPower: 0, dailyChange: 0 });
+  const [holdings, setHoldings] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem('token');
       try {
-        const result = await axios.get('/api/users/user-info', { headers: { Authorization: `Bearer ${token}` } });
-        setUserInfo(result.data);
+        // Fetch user information
+        const userRes = await axios.get('/api/users/user-info', { headers: { Authorization: `Bearer ${token}` } });
+        setUserInfo(userRes.data);
 
-        const portfolioRes = await axios.get('/api/portfolio', { headers: { Authorization: `Bearer ${token}` } });
-        setPortfolio(portfolioRes.data);
-
-        const marketRes = await axios.get('/api/stocks');
-        setMarketUpdates(marketRes.data);
-
-        setPerformanceData({
-          labels: ['1W', '1M', '3M', '6M', '1Y'],
-          datasets: [{
-            label: 'Account Value',
-            data: [100000, 101500, 98000, 102000, 105000],
-            fill: true,
-            borderColor: '#4a90e2',
-            backgroundColor: 'rgba(74, 144, 226, 0.2)'
-          }]
-        });
-
+        // Fetch holdings information
+        const holdingsRes = await axios.get('/api/portfolio', { headers: { Authorization: `Bearer ${token}` } });
+        setHoldings(holdingsRes.data);
       } catch (error) {
         console.error('Error fetching data', error);
       }
@@ -164,17 +139,13 @@ const Dashboard = () => {
         <StatBlock>
           <h3>Today's Change</h3>
           <p style={{ color: userInfo.dailyChange < 0 ? 'red' : 'green' }}>
-            ${userInfo.dailyChange.toFixed(2)} (0.72%)
+            ${userInfo.dailyChange.toFixed(2)}
           </p>
         </StatBlock>
       </OverviewSection>
 
-      <PerformanceChart>
-        {performanceData.labels.length > 0 && <Line data={performanceData} />}
-      </PerformanceChart>
-
       <Section>
-        <h2>Portfolio Overview</h2>
+        <h2>Holdings</h2>
         <Table>
           <thead>
             <tr>
@@ -187,7 +158,7 @@ const Dashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {portfolio.length > 0 ? portfolio.map(stock => (
+            {holdings.length > 0 ? holdings.map(stock => (
               <tr key={stock.symbol}>
                 <Td>{stock.symbol}</Td>
                 <Td>{stock.name}</Td>
@@ -198,33 +169,7 @@ const Dashboard = () => {
               </tr>
             )) : (
               <tr>
-                <Td colSpan="6">No portfolio data available</Td>
-              </tr>
-            )}
-          </tbody>
-        </Table>
-      </Section>
-
-      <Section>
-        <h2>Market Updates</h2>
-        <Table>
-          <thead>
-            <tr>
-              <Th>Symbol</Th>
-              <Th>Name</Th>
-              <Th>Price</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {marketUpdates.length > 0 ? marketUpdates.slice(0, 5).map(stock => (
-              <tr key={stock.symbol}>
-                <Td>{stock.symbol}</Td>
-                <Td>{stock.name}</Td>
-                <Td>${stock.price}</Td>
-              </tr>
-            )) : (
-              <tr>
-                <Td colSpan="3">No market updates available</Td>
+                <Td colSpan="6">No holdings data available</Td>
               </tr>
             )}
           </tbody>
