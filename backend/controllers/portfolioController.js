@@ -7,9 +7,10 @@ exports.getUserPortfolio = async (req, res) => {
 
     // Query to fetch the user's portfolio details
     const queryText = `
-      SELECT p.symbol, p.market, p.quantity, p.purchase_price, s.current_price, s.name 
-      FROM portfolio p
-      JOIN stock s ON p.symbol = s.symbol
+      SELECT sh.symbol, sh.market, sh.quantity, sh.purchase_price, s.current_price, s.name
+      FROM stock_holdings sh
+      JOIN portfolio p ON p.portfolio_id = sh.portfolio_id
+      JOIN stock s ON sh.symbol = s.symbol
       WHERE p.user_id = $1
     `;
 

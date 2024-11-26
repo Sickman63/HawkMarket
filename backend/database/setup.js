@@ -30,6 +30,19 @@ async function setupDatabase() {
     `);
     console.log('Portfolio table created successfully');
 
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS stock_holdings (
+        holding_id SERIAL PRIMARY KEY,
+        portfolio_id INTEGER REFERENCES portfolio(portfolio_id),
+        symbol VARCHAR(10) NOT NULL,
+        market VARCHAR(10) NOT NULL,
+        quantity INTEGER NOT NULL,
+        purachase_price NUMERIC(10, 2) NOT NULL,
+        UNIQUE (portfolio_id, symbol)
+      );
+    `);
+    console.log('Holdings table created successfully');
+
     // Create transactions table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS transactions (

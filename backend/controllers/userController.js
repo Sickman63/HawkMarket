@@ -10,6 +10,12 @@ exports.getUserInfo = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    const user = result.rows[0];
+    // Ensure values are numeric
+    user.balance = parseFloat(user.balance);
+    user.buying_power = parseFloat(user.buying_power);
+    user.daily_change = parseFloat(user.daily_change);
+
     res.status(200).json(result.rows[0]);
   } catch (error) {
     console.error('Error fetching user info:', error);

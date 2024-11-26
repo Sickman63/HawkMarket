@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
+import axios from '../api/axiosConfig';
 import { Link } from 'react-router-dom';
 
 const Container = styled.div`
@@ -98,11 +98,11 @@ const Dashboard = () => {
       const token = localStorage.getItem('token');
       try {
         // Fetch user information
-        const userRes = await axios.get('/api/users/user-info', { headers: { Authorization: `Bearer ${token}` } });
+        const userRes = await axios.get('/users/user-info', { headers: { Authorization: `Bearer ${token}` } });
         setUserInfo(userRes.data);
 
         // Fetch holdings information
-        const holdingsRes = await axios.get('/api/portfolio', { headers: { Authorization: `Bearer ${token}` } });
+        const holdingsRes = await axios.get('/portfolio', { headers: { Authorization: `Bearer ${token}` } });
         setHoldings(holdingsRes.data);
       } catch (error) {
         console.error('Error fetching data', error);
@@ -122,24 +122,24 @@ const Dashboard = () => {
       <Header>
         <h1>Dashboard</h1>
         <div>
-          <p>Balance: ${userInfo.balance.toFixed(2)}</p>
-          <p>Buying Power: ${userInfo.buyingPower.toFixed(2)}</p>
+          <p>Balance: ${typeof userInfo.balance === 'number' ? userInfo.balance.toFixed(2) : '0.00'}</p>
+          <p>Buying Power: ${typeof userInfo.buyingPower === 'number' ? userInfo.buyingPower.toFixed(2) : '0.00'}</p>
         </div>
       </Header>
 
       <OverviewSection>
         <StatBlock>
           <h3>Account Value</h3>
-          <p>${userInfo.balance.toFixed(2)}</p>
+          <p>${typeof userInfo.balance === 'number' ? userInfo.balance.toFixed(2) : '0.00'}</p>
         </StatBlock>
         <StatBlock>
           <h3>Buying Power</h3>
-          <p>${userInfo.buyingPower.toFixed(2)}</p>
+          <p>${typeof userInfo.buyingPower === 'number' ? userInfo.buyingPower.toFixed(2) : '0.00'}</p>
         </StatBlock>
         <StatBlock>
           <h3>Today's Change</h3>
           <p style={{ color: userInfo.dailyChange < 0 ? 'red' : 'green' }}>
-            ${userInfo.dailyChange.toFixed(2)}
+            ${typeof userInfo.dailyChange === 'number' ? userInfo.dailyChange.toFixed(2) : '0.00'}
           </p>
         </StatBlock>
       </OverviewSection>

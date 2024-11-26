@@ -11,8 +11,10 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3500/login', { username, password });
+      console.log('Attempting to log in with:', { username, password });
+      const response = await axios.post('/auth/login', { username, password });
       localStorage.setItem('token', response.data.token);
+      console.log('Login successful, token saved:', response.data.token);
       navigate('/dashboard');
     } catch (error) {
       setError('Error logging in');

@@ -10,6 +10,12 @@ exports.signup = async (req, res) => {
       'INSERT INTO users (username, password, balance) VALUES ($1, $2, $3) RETURNING *',
       [username, hashedPassword, 100000.00]
     );
+    
+    const userId = result.rows[0].user_id;
+
+    // Create portfolio for user
+    await pool.query('INSERT INTO portfolio (user_id) VALUES ($1)', [userId]);
+
     res.status(201).json({ message: 'User created successfully', user: result.rows[0] });
   } catch (error) {
     console.error(error);
