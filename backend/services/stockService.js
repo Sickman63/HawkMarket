@@ -55,6 +55,23 @@ async function updateStockPrices() {
     { symbol: 'F', market: 'NYSE' },
     { symbol: 'NVDA', market: 'NASDAQ' },
     { symbol: 'AAPL', market: 'NASDAQ' },
+    { symbol: 'PFE', market: 'NYSE' },
+    { symbol: 'AMZN', market: 'NASDAQ' },
+    { symbol: 'MSFT', market: 'NASDAQ' },
+    { symbol: 'TSLA', market: 'NASDAQ' },
+    { symbol: 'GOOGL', market: 'NASDAQ' },
+    { symbol: 'NFLX', market: 'NASDAQ' },
+    { symbol: 'DIS', market: 'NYSE' },
+    { symbol: 'JPM', market: 'NYSE' },
+    { symbol: 'BAC', market: 'NYSE' },
+    { symbol: 'V', market: 'NYSE' },
+    { symbol: 'JNJ', market: 'NYSE' },
+    { symbol: 'WMT', market: 'NYSE' },
+    { symbol: 'PG', market: 'NYSE' },
+    { symbol: 'KO', market: 'NYSE' },
+    { symbol: 'PEP', market: 'NASDAQ' },
+    { symbol: 'XOM', market: 'NYSE' },
+    { symbol: 'NKE', market: 'NYSE' },
     // Add more stocks as needed
   ];
 
@@ -80,38 +97,23 @@ async function updateStockPrices() {
 }
 
 // Function to fetch stock information from the database, fallback to scraping if needed
-async function getStockDataFromDBOrScraper(symbol, market) {
+async function getStockDataFromDB(symbol) {
   try {
     // Check the stock table in the database first
     const result = await pool.query(
-      `SELECT symbol, market, name, current_price, last_updated FROM stock WHERE symbol = $1 AND market = $2`,
-      [symbol, market]
+      `SELECT symbol, market, name, current_price, last_updated 
+       FROM stock 
+       WHERE symbol ILIKE $1 AND market IN ('NYSE', 'NASDAQ')`,
+      [`%${symbol}%`]
     );
 
     if (result.rows.length > 0) {
-      const stock = result.rows[0];
-      const lastUpdated = new Date(stock.last_updated);
-      const now = new Date();
-      const timeDiff = (now - lastUpdated) / 1000; // Time difference in seconds
-
-      // If the stock data is recent (e.g., updated within the last 60 seconds), use it
-      if (timeDiff < 60) {
-        return {
-          symbol: stock.symbol,
-          market: stock.market,
-          name: stock.name,
-          current_price: stock.current_price,
-          last_updated: stock.last_updated
-        };
-      }
+      return result.rows; // Return all matching stocks
     }
 
-    // If the stock data is outdated or not found, scrape real-time data
-    const realTimeStockData = await asyncFindStockInfoFromSymbol(symbol, market);
-    return realTimeStockData;
-
+    return [];
   } catch (error) {
-    console.error('Error fetching stock data from database or scraper:', error);
+    console.error('Error fetching stock data from database:', error);
     throw new Error('Failed to fetch stock data');
   }
 }
@@ -120,5 +122,5 @@ async function getStockDataFromDBOrScraper(symbol, market) {
 module.exports = {
   asyncFindStockInfoFromSymbol,
   updateStockPrices,
-  getStockDataFromDBOrScraper
+  getStockDataFromDB
 };

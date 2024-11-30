@@ -9,11 +9,11 @@ async function setupDatabase() {
       CREATE TABLE IF NOT EXISTS users (
         user_id SERIAL PRIMARY KEY,
         username VARCHAR(50) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL, -- Changed to singular
-        created_on TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
+        password VARCHAR(255) NOT NULL,
+        created_on TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
         last_login TIMESTAMP WITHOUT TIME ZONE,
-        balance NUMERIC(15, 2) DEFAULT 0.00
-        buying_power NUMERIC(15, 2) DEFAULT 0.00
+        balance NUMERIC(15, 2) DEFAULT 0.00,
+        buying_power NUMERIC(15, 2) DEFAULT 0.00,
         daily_change NUMERIC(15, 2) DEFAULT 0.00
       );
     `);
@@ -23,13 +23,14 @@ async function setupDatabase() {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS portfolio (
         portfolio_id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(user_id),
-        created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
+        user_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
+        created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
         updated_on TIMESTAMP WITHOUT TIME ZONE
       );
     `);
     console.log('Portfolio table created successfully');
 
+    //Create stock holdings table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS stock_holdings (
         holding_id SERIAL PRIMARY KEY,
@@ -37,7 +38,7 @@ async function setupDatabase() {
         symbol VARCHAR(10) NOT NULL,
         market VARCHAR(10) NOT NULL,
         quantity INTEGER NOT NULL,
-        purachase_price NUMERIC(10, 2) NOT NULL,
+        purchase_price NUMERIC(10, 2) NOT NULL,
         UNIQUE (portfolio_id, symbol)
       );
     `);
@@ -62,9 +63,8 @@ async function setupDatabase() {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS leaderboard (
         leaderboard_id SERIAL PRIMARY KEY,
-        ranks INTEGER,
-        earnings INTEGER,
-        user_id INTEGER REFERENCES users(user_id)
+        user_id INTEGER REFERENCES users(user_id),
+        total_portfolio_value NUMERIC(15, 2) DEFAULT 0.00
       );
     `);
     console.log('Leaderboard table created successfully');
@@ -75,7 +75,7 @@ async function setupDatabase() {
         history_id SERIAL PRIMARY KEY,
         portfolio_id INTEGER REFERENCES portfolio(portfolio_id),
         value NUMERIC(15, 2),
-        transactions_id INTEGER REFERENCES transactions(transaction_id),
+        related_transaction_id INTEGER REFERENCES transactions(transaction_id),
         recorded_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW()
       );
     `);

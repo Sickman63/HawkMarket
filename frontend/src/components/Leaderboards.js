@@ -1,87 +1,82 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
+import axios from '../api/axiosConfig';
 import { Link } from 'react-router-dom';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background-color: #f5f5f5;
+  padding: 20px;
+  background-color: #1c1e26;
+  color: #f5f5f5;
 `;
 
 const Header = styled.header`
+  width: 100%;
+  padding: 20px;
+  background-color: #2c3e50;
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
-`;
-
-const Title = styled.h1`
-  font-size: 2.5rem;
-  color: #282c34;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 `;
 
 const Section = styled.section`
   width: 80%;
-  margin-bottom: 2rem;
-  background-color: white;
-  padding: 1rem;
+  background-color: #2e3241;
+  padding: 1.5rem;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-`;
-
-const SectionTitle = styled.h2`
-  font-size: 1.5rem;
-  color: #282c34;
-  margin-bottom: 1rem;
+  margin-top: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 `;
 
 const Table = styled.table`
   width: 100%;
+  margin-top: 1rem;
   border-collapse: collapse;
-  margin-bottom: 1rem;
+  color: #f5f5f5;
 `;
 
 const Th = styled.th`
-  padding: 0.75rem;
-  background-color: #61dafb;
-  color: white;
-  border: 1px solid #ddd;
+  padding: 10px;
+  background-color: #4a90e2;
+  text-align: left;
 `;
 
 const Td = styled.td`
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-`;
-
-const Footer = styled.footer`
-  margin-top: 2rem;
-  padding: 1rem;
-  background-color: #282c34;
-  color: white;
-  width: 100%;
-  text-align: center;
+  padding: 10px;
+  border-bottom: 1px solid #444;
 `;
 
 const Leaderboards = () => {
   const [leaderboard, setLeaderboard] = useState([]);
 
   useEffect(() => {
-    axios.get('/api/leaderboard')
-      .then(response => setLeaderboard(response.data))
-      .catch(error => console.error('Error fetching leaderboard:', error));
+    const fetchLeaderboard = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await axios.get('/leaderboard', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        console.log('Leaderboard Data Received:', response.data); // Log the response data
+        setLeaderboard(response.data);
+      } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+      }
+    };
+    fetchLeaderboard();
   }, []);
 
   return (
     <Container>
       <Header>
-        <Title>Leaderboards</Title>
+        <h1>Leaderboard</h1>
       </Header>
+
       <Section>
-        <SectionTitle>Top Performers</SectionTitle>
+        <h2>Top Performers</h2>
         <Table>
           <thead>
             <tr>
@@ -92,23 +87,27 @@ const Leaderboards = () => {
             </tr>
           </thead>
           <tbody>
-            {leaderboard.map((user, index) => (
-              <tr key={user.id}>
+            {leaderboard.length > 0 ? leaderboard.map((user, index) => (
+              <tr key={user.username}>
                 <Td>{index + 1}</Td>
                 <Td>
-                  <Link to={`/profile/${user.id}`}>{user.name}</Link>
+                  <Link to={`/profile/${user.username}`} style={{ color: '#61dafb', textDecoration: 'none' }}>
+                    {user.username || 'N/A'}
+                  </Link>
                 </Td>
-                <Td>${user.totalValue.toFixed(2)}</Td>
-                <Td>{user.percentGains.toFixed(2)}%</Td>
+                <Td>${(user.totalvalue != null ? parseFloat(user.totalvalue) : 0).toFixed(2)}</Td>
+                <Td style={{ color: (user.percentgains != null && user.percentgains < 0) ? 'red' : 'green' }}>
+                  {(user.percentgains != null ? parseFloat(user.percentgains) : 0).toFixed(2)}%
+                </Td>
               </tr>
-            ))}
+            )) : (
+              <tr>
+                <Td colSpan="4">No leaderboard data available</Td>
+              </tr>
+            )}
           </tbody>
         </Table>
       </Section>
-      <Footer>
-        <Link to="/support">Platform Support</Link>
-        <Link to="/news">News</Link>
-      </Footer>
     </Container>
   );
 };

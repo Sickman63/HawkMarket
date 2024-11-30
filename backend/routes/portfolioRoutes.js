@@ -4,6 +4,6 @@ const portfolioController = require('../controllers/portfolioController');
 const authMiddleware = require('../middleware/authMiddleware');
 
 // Get user portfolio
-router.get('/portfolio', authMiddleware, portfolioController.getUserPortfolio);
+router.get('/', authMiddleware, portfolioController.getUserPortfolio);
 
 module.exports = router;

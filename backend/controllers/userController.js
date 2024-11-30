@@ -3,7 +3,7 @@ const pool = require('../database/connection');
 exports.getUserInfo = async (req, res) => {
   try {
     const userId = req.user.user_id; // Assumes the authMiddleware adds `user` to `req`.
-    const queryText = 'SELECT username, balance, buying_power, daily_change FROM users WHERE user_id = $1';
+    const queryText = 'SELECT username, balance, buying_power, daily_change, created_on FROM users WHERE user_id = $1';
     const result = await pool.query(queryText, [userId]);
 
     if (result.rows.length === 0) {

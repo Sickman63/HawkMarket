@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const tradeController = require('../controllers/tradeController');
+const authMiddleware = require('../middleware/authMiddleware');
 
-router.post('/buy', tradeController.buyStock); // Route to buy stock
-router.post('/sell', tradeController.sellStock); // Route to sell stock
+router.post('/buy', authMiddleware, tradeController.buyStock);
+router.post('/sell', authMiddleware, tradeController.sellStock);
 
 module.exports = router;

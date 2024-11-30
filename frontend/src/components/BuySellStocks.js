@@ -1,82 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
+import axios from '../api/axiosConfig';
+import { debounce } from 'lodash';
 import { Link } from 'react-router-dom';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  height: 100vh;
+  padding: 20px;
   background-color: #1c1e26;
   color: #f5f5f5;
-  overflow-y: auto;
 `;
 
 const Header = styled.header`
   width: 100%;
-  background-color: #2c3e50;
   padding: 20px;
+  background-color: #2c3e50;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-radius: 8px;
-`;
-
-const Nav = styled.nav`
-  display: flex;
-  background-color: #2e3241;
-  width: 100%;
-  padding: 1rem;
-  justify-content: center;
-`;
-
-const NavLink = styled(Link)`
-  margin: 0 1.5rem;
-  padding: 0.5rem 1rem;
-  color: #f5f5f5;
-  text-decoration: none;
-  font-weight: bold;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #4a90e2;
-  }
-`;
-
-const Section = styled.section`
-  width: 80%;
-  margin-bottom: 2rem;
-  background-color: #2e3241;
-  padding: 1.5rem;
-  border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 `;
 
-const SectionTitle = styled.h2`
-  font-size: 1.5rem;
-  color: #f5f5f5;
-  margin-bottom: 1rem;
-`;
-
-const Table = styled.table`
+const FormContainer = styled.div`
   width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 1rem;
-  color: #f5f5f5;
+  margin-top: 1.5rem;
 `;
 
-const Th = styled.th`
-  padding: 0.75rem;
-  background-color: #4a90e2;
-  text-align: left;
-`;
-
-const Td = styled.td`
-  padding: 0.75rem;
-  border-bottom: 1px solid #444;
+const StockInfoContainer = styled.div`
+  width: 100%;
+  margin-top: 1.5rem;
+  background-color: #3a3f4b;
+  padding: 1.5rem;
+  border-radius: 8px;
 `;
 
 const TradeForm = styled.form`
@@ -116,123 +74,329 @@ const Button = styled.button`
   }
 `;
 
-const Footer = styled.footer`
-  margin-top: 2rem;
-  padding: 1rem;
-  background-color: #282c34;
-  color: white;
+const ClearButton = styled(Button)`
+  background-color: #d9534f;
+
+  &:hover {
+    background-color: #c9302c;
+  }
+`;
+
+const SuggestionsList = styled.ul`
+  list-style-type: none;
+  padding: 0;
+  margin-top: 0.5rem;
   width: 100%;
-  text-align: center;
+  max-height: 150px;
+  overflow-y: auto;
+  background-color: #2e3241;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+`;
+
+const SuggestionItem = styled.li`
+  padding: 10px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #4a90e2;
+  }
+`;
+
+const LoadingIndicator = styled.p`
+  color: #4a90e2;
+`;
+
+const PreviewContainer = styled.div`
+  width: 100%;
+  margin-top: 1.5rem;
+  background-color: #3a3f4b;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: left;
+`;
+
+const PreviewButtonContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+`;
+
+const ChangeOrderButton = styled(Button)`
+  background-color: #f0ad4e;
+
+  &:hover {
+    background-color: #ec971f;
+  }
+`;
+
+const ConfirmTradeButton = styled(Button)`
+  background-color: #4a90e2;
+
+  &:hover {
+    background-color: #357ab8;
+  }
 `;
 
 const BuySellStocks = () => {
+  const [userInfo, setUserInfo] = useState({ balance: null, buying_power: null });
   const [stocks, setStocks] = useState([]);
+  const [filteredStocks, setFilteredStocks] = useState([]);
   const [quantity, setQuantity] = useState('');
   const [symbol, setSymbol] = useState('');
-  const [orderType, setOrderType] = useState('Market');
-  const [duration, setDuration] = useState('Day Only');
   const [action, setAction] = useState('Buy');
+  const [selectedStock, setSelectedStock] = useState(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [isPreviewing, setIsPreviewing] = useState(false);
+  const [previewDetails, setPreviewDetails] = useState(null);
+  const [isConfirmed, setIsConfirmed] = useState(null); // New state for trade confirmation
 
   useEffect(() => {
-    axios.get('http://localhost:3500/api/stocks')
-      .then(response => setStocks(response.data))
-      .catch(error => console.error('Error fetching stocks:', error));
+    const fetchUserInfo = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const userRes = await axios.get('/users/user-info', { headers: { Authorization: `Bearer ${token}` } });
+        setUserInfo(userRes.data);
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      }
+    };
+    fetchUserInfo();
   }, []);
 
-  const handleConfirm = (e) => {
+  const debouncedHandleSymbolChange = debounce((input) => {
+    setSymbol(input);
+    setLoading(true);
+  }, 500);
+
+  const handleSymbolChange = (e) => {
+    const input = e.target.value.toUpperCase();
+    setError('');
+    setSelectedStock(null);
+    setFilteredStocks([]);
+    setLoading(true);
+    debouncedHandleSymbolChange(input);
+  };
+
+  useEffect(() => {
+    const fetchStockData = async () => {
+      if (!symbol) {
+        setLoading(false);
+        return;
+      }
+  
+      try {
+        const stocksRes = await axios.get('/stocks', { params: { symbol } });
+        if (stocksRes.data && stocksRes.data.length === 0) {
+          setError('Invalid stock symbol. Please try again.');
+          setStocks([]);
+        } else {
+          setStocks(Array.isArray(stocksRes.data) ? stocksRes.data : [stocksRes.data]);
+          setError(''); // Clear any previous errors
+        }
+      } catch (error) {
+        console.error('Error fetching stock data:', error);
+        setError('Invalid stock symbol. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStockData();
+  }, [symbol]);
+
+  useEffect(() => {
+    if (symbol && Array.isArray(stocks)) {
+      const matches = stocks.filter(stock => stock.symbol.toUpperCase().includes(symbol));
+      setFilteredStocks(matches);
+    } else {
+      setFilteredStocks([]);
+    }
+  }, [stocks, symbol]);
+
+  const handleStockSelect = (stock) => {
+    setSymbol(stock.symbol);
+    setSelectedStock(stock);
+    setFilteredStocks([]);
+  };
+
+  const handlePreview = (e) => {
     e.preventDefault();
-    // Execute trade logic here (implementation not shown)
-    alert(`Trade confirmed: ${action} ${quantity} shares of ${symbol} as a ${orderType} order.`);
-    // Reset form
+    if (!symbol || !quantity) {
+      setError('Please enter a valid stock symbol and quantity.');
+      return;
+    }
+
+    const selected = stocks.find(stock => stock.symbol === symbol);
+    if (!selected) {
+      setError(`${symbol} is not a valid symbol.`);
+      return;
+    }
+
+    setPreviewDetails({
+      symbol: selected.symbol,
+      name: selected.name,
+      price: selected.current_price,
+      quantity,
+      total: (selected.current_price * quantity).toFixed(2)
+    });
+
+    setIsPreviewing(true);
+  };
+
+  const handleConfirmPreview = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post('/trades/' + (action.toLowerCase()), {
+        symbol,
+        market: selectedStock.market,
+        quantity
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // Set the trade confirmation state
+      setIsConfirmed({
+        action,
+        symbol,
+        quantity,
+        name: selectedStock.name,
+      });
+
+      // Clear form inputs and hide the form/preview
+      setQuantity('');
+      setSymbol('');
+      setSelectedStock(null);
+      setIsPreviewing(false);
+    } catch (error) {
+      console.error('Error executing trade:', error);
+      setError('Failed to complete the trade. Please try again.');
+    }
+  };
+
+  const handleClear = () => {
     setQuantity('');
     setSymbol('');
+    setSelectedStock(null);
+    setError('');
+    setIsPreviewing(false);
+    setIsConfirmed(null);
+  };
+
+  const handleChangeOrder = () => {
+    setIsPreviewing(false);
   };
 
   return (
     <Container>
-      {/* Top Navigation Bar */}
-      <Nav>
-        <NavLink to="/portfolio">Portfolio</NavLink>
-        <NavLink to="/buy-sell">Trade</NavLink>
-        <NavLink to="/leaderboard">Leaderboard</NavLink>
-      </Nav>
-
-      {/* Page Header */}
       <Header>
         <h1>Trade Stocks</h1>
         <div>
-          <p>Account Value: $100,000.00</p>
-          <p>Buying Power: $99,982.00</p>
+          <p>Account Value: ${userInfo.balance !== null ? userInfo.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 'Loading...'}</p>
+          <p>Buying Power: ${userInfo.buying_power !== null ? userInfo.buying_power.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 'Loading...'}</p>
         </div>
       </Header>
 
-      {/* Stock Listings */}
-      <Section>
-        <SectionTitle>Stock Listings</SectionTitle>
-        <Table>
-          <thead>
-            <tr>
-              <Th>Stock</Th>
-              <Th>Price</Th>
-              <Th>Change</Th>
-              <Th>Volume</Th>
-              <Th>Action</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {stocks.map(stock => (
-              <tr key={stock.id}>
-                <Td>{stock.name}</Td>
-                <Td>${stock.price}</Td>
-                <Td>{stock.change}%</Td>
-                <Td>{stock.volume}</Td>
-                <Td>
-                  <Button onClick={() => setSymbol(stock.name)}>Select</Button>
-                </Td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </Section>
+      {!isConfirmed && (
+        <>
+          {!isPreviewing && (
+            <FormContainer>
+              <h2>Search for a Stock</h2>
+              <Input
+                type="text"
+                placeholder="Stock Symbol"
+                value={symbol}
+                onChange={handleSymbolChange}
+                required
+              />
+              {loading && <LoadingIndicator>Loading...</LoadingIndicator>}
+              {filteredStocks.length > 0 && (
+                <SuggestionsList>
+                  {filteredStocks.map(stock => (
+                    <SuggestionItem key={stock.symbol} onClick={() => handleStockSelect(stock)}>
+                      {stock.symbol} - {stock.name}
+                    </SuggestionItem>
+                  ))}
+                </SuggestionsList>
+              )}
+              {error && <p style={{ color: 'red' }}>{error}</p>}
+            </FormContainer>
+          )}
 
-      {/* Trade Form Section */}
-      <Section>
-        <SectionTitle>Trade Form</SectionTitle>
-        <TradeForm onSubmit={handleConfirm}>
-          <Input
-            type="text"
-            placeholder="Stock Symbol"
-            value={symbol}
-            onChange={(e) => setSymbol(e.target.value)}
-            required
-          />
-          <Input
-            type="number"
-            placeholder="Quantity"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            required
-          />
-          <Select value={action} onChange={(e) => setAction(e.target.value)}>
-            <option value="Buy">Buy</option>
-            <option value="Sell">Sell</option>
-          </Select>
-          <Select value={orderType} onChange={(e) => setOrderType(e.target.value)}>
-            <option value="Market">Market</option>
-            <option value="Limit">Limit</option>
-          </Select>
-          <Select value={duration} onChange={(e) => setDuration(e.target.value)}>
-            <option value="Day Only">Day Only</option>
-            <option value="Good Till Cancelled">Good Till Cancelled</option>
-          </Select>
-          <Button type="submit">Confirm Trade</Button>
-        </TradeForm>
-      </Section>
+          {selectedStock && !isPreviewing && (
+            <StockInfoContainer>
+              <h3>{selectedStock.name} ({selectedStock.symbol})</h3>
+              <p>Current Price: ${selectedStock.current_price}</p>
+              <p>Day's High: ${selectedStock.high || "N/A"}</p>
+              <p>Day's Low: ${selectedStock.low || "N/A"}</p>
+              <p>Volume: {selectedStock.volume || "N/A"}</p>
+            </StockInfoContainer>
+          )}
 
-      {/* Footer */}
-      <Footer>
-        <p>Stock market news ticker and platform support links</p>
-      </Footer>
+          <FormContainer>
+            <h2>Trade Form</h2>
+            {!isPreviewing && (
+              <TradeForm onSubmit={handlePreview}>
+                <Input
+                  type="number"
+                  placeholder="Quantity"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  required
+                />
+                <Select value={action} onChange={(e) => setAction(e.target.value)}>
+                  <option value="Buy">Buy</option>
+                  <option value="Sell">Sell</option>
+                </Select>
+                <Button type="submit">Preview Order</Button>
+                <ClearButton type="button" onClick={handleClear}>Clear</ClearButton>
+              </TradeForm>
+            )}
+          </FormContainer>
+
+          {isPreviewing && previewDetails && (
+            <PreviewContainer>
+              <h3>Preview Order</h3>
+              <p>Stock: {previewDetails.name} ({previewDetails.symbol})</p>
+              <p>Price: ${previewDetails.price}</p>
+              <p>Quantity: {previewDetails.quantity}</p>
+              <p>Total: ${previewDetails.total}</p>
+              <PreviewButtonContainer>
+                <ChangeOrderButton type="button" onClick={handleChangeOrder}>Change Order</ChangeOrderButton>
+                <ConfirmTradeButton type="button" onClick={handleConfirmPreview}>Confirm Trade</ConfirmTradeButton>
+              </PreviewButtonContainer>
+            </PreviewContainer>
+          )}
+        </>
+      )}
+
+      {isConfirmed && (
+        <StockInfoContainer>
+          <h3>Trade Confirmation</h3>
+          <p>{isConfirmed.action} Market order for {isConfirmed.symbol} ({isConfirmed.name}) received.</p>
+          <p>Your order has been received and will be executed shortly.</p>
+          <ul>
+            <li>To submit another stock order, 
+            <button 
+              onClick={handleClear}
+              style={{ 
+                background: 'none', 
+                border: 'none', 
+                color: '#61dafb', 
+                textDecoration: 'underline', 
+                cursor: 'pointer',
+                padding: '0',
+                fontSize: 'inherit',
+                fontFamily: 'inherit',
+                display: 'inline',
+              }}
+            >
+              click here
+            </button>.</li>
+            <li>To return to your portfolio summary, <Link to="/dashboard">click here</Link>.</li>
+          </ul>
+        </StockInfoContainer>
+      )}
     </Container>
   );
 };

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from '../api/axiosConfig';
-import { Link } from 'react-router-dom';
 
 const Container = styled.div`
   display: flex;
@@ -21,28 +20,6 @@ const Header = styled.header`
   align-items: center;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-`;
-
-const Nav = styled.nav`
-  display: flex;
-  background-color: #2e3241;
-  width: 100%;
-  padding: 1rem;
-  justify-content: center;
-`;
-
-const NavLink = styled(Link)`
-  margin: 0 1.5rem;
-  padding: 0.5rem 1rem;
-  color: #f5f5f5;
-  text-decoration: none;
-  font-weight: bold;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #4a90e2;
-  }
 `;
 
 const OverviewSection = styled.section`
@@ -90,7 +67,7 @@ const Td = styled.td`
 `;
 
 const Dashboard = () => {
-  const [userInfo, setUserInfo] = useState({ username: '', balance: 0, buyingPower: 0, dailyChange: 0 });
+  const [userInfo, setUserInfo] = useState({ username: '', balance: 0, buying_power: 0, daily_change: 0 });
   const [holdings, setHoldings] = useState([]);
 
   useEffect(() => {
@@ -113,33 +90,27 @@ const Dashboard = () => {
 
   return (
     <Container>
-      <Nav>
-        <NavLink to="/portfolio">Portfolio</NavLink>
-        <NavLink to="/buy-sell">Trade</NavLink>
-        <NavLink to="/leaderboard">Leaderboard</NavLink>
-      </Nav>
-
       <Header>
-        <h1>Dashboard</h1>
+        <h1>HawkMarket</h1>
         <div>
-          <p>Balance: ${typeof userInfo.balance === 'number' ? userInfo.balance.toFixed(2) : '0.00'}</p>
-          <p>Buying Power: ${typeof userInfo.buyingPower === 'number' ? userInfo.buyingPower.toFixed(2) : '0.00'}</p>
+          <p>Balance: ${typeof userInfo.balance === 'number' ? userInfo.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}</p>
+          <p>Buying Power: ${typeof userInfo.buying_power === 'number' ? userInfo.buying_power.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}</p>
         </div>
       </Header>
 
       <OverviewSection>
         <StatBlock>
           <h3>Account Value</h3>
-          <p>${typeof userInfo.balance === 'number' ? userInfo.balance.toFixed(2) : '0.00'}</p>
+          <p>${typeof userInfo.balance === 'number' ? userInfo.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}</p>
         </StatBlock>
         <StatBlock>
           <h3>Buying Power</h3>
-          <p>${typeof userInfo.buyingPower === 'number' ? userInfo.buyingPower.toFixed(2) : '0.00'}</p>
+          <p>${typeof userInfo.buying_power === 'number' ? userInfo.buying_power.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}</p>
         </StatBlock>
         <StatBlock>
           <h3>Today's Change</h3>
-          <p style={{ color: userInfo.dailyChange < 0 ? 'red' : 'green' }}>
-            ${typeof userInfo.dailyChange === 'number' ? userInfo.dailyChange.toFixed(2) : '0.00'}
+          <p style={{ color: userInfo.daily_change < 0 ? 'red' : 'green' }}>
+            ${typeof userInfo.daily_change === 'number' ? userInfo.daily_change.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
           </p>
         </StatBlock>
       </OverviewSection>
@@ -161,11 +132,11 @@ const Dashboard = () => {
             {holdings.length > 0 ? holdings.map(stock => (
               <tr key={stock.symbol}>
                 <Td>{stock.symbol}</Td>
-                <Td>{stock.name}</Td>
+                <Td>{stock.name || 'N/A'}</Td> {/* Assuming name might not always be available */}
                 <Td>{stock.quantity}</Td>
-                <Td>${stock.purchasePrice.toFixed(2)}</Td>
-                <Td>${stock.currentPrice.toFixed(2)}</Td>
-                <Td>${(stock.quantity * stock.currentPrice).toFixed(2)}</Td>
+                <Td>${stock.purchase_price !== null && stock.purchase_price !== undefined ? parseFloat(stock.purchase_price).toFixed(2) : 'N/A'}</Td>
+                <Td>${stock.current_price !== null && stock.current_price !== undefined ? parseFloat(stock.current_price).toFixed(2) : 'N/A'}</Td>
+                <Td>${stock.quantity !== null && stock.current_price !== null ? (stock.quantity * parseFloat(stock.current_price)).toFixed(2) : 'N/A'}</Td>
               </tr>
             )) : (
               <tr>

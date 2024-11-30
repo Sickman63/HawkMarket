@@ -8,42 +8,73 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 20px;
+  background-color: #1c1e26;
+  color: #f5f5f5;
   height: 100vh;
+`;
+
+const Header = styled.header`
+  width: 100%;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
   width: 300px;
+  background-color: #2e3241;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 `;
 
 const Input = styled.input`
-  margin-bottom: 10px;
-  padding: 10px;
+  margin-bottom: 15px;
+  padding: 15px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  background-color: #f5f5f5;
+  color: #1c1e26;
 `;
 
 const Button = styled.button`
-  margin: 1rem 0;
-  padding: 0.75rem 1.5rem;
+  margin-top: 15px;
+  padding: 15px;
   font-size: 1rem;
   color: white;
-  background-color: #61dafb;
+  background-color: #2c3e50;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 
   &:hover {
-    background-color: #21a1f1;
+    background-color: #1a2533;
+  }
+`;
+
+const BackButton = styled(Button)`
+  margin-top: 20px;
+  background-color: #adb5bd;
+
+  &:hover {
+    background-color: #8a9ba8;
   }
 `;
 
 const LinkText = styled(Link)`
   color: #61dafb;
   text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const SignUp = () => {
@@ -52,7 +83,6 @@ const SignUp = () => {
     password: '',
   });
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -63,21 +93,21 @@ const SignUp = () => {
     e.preventDefault();
     try {
       const response = await axios.post('/auth/signup', formData);
-      setSuccess('User registered successfully');
       setError('');
       console.log('User registered:', response.data);
-      navigate('/dashboard');
+      navigate('/login'); // Redirect to login page after successful signup
     } catch (error) {
       setError('Error registering user');
-      setSuccess('');
       console.error('Error registering user:', error);
     }
   };
 
   return (
     <Container>
-      <Form onSubmit={handleSubmit}>
+      <Header>
         <h2>Sign Up</h2>
+      </Header>
+      <Form onSubmit={handleSubmit}>
         {error && <p style={{ color: 'red' }}>{error}</p>}
         <Input
           type="text"
@@ -100,6 +130,7 @@ const SignUp = () => {
           Already have an account? <LinkText to="/login">Login</LinkText>
         </p>
       </Form>
+      <BackButton onClick={() => navigate(-1)}>Back</BackButton>
     </Container>
   );
 };

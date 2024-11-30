@@ -6,11 +6,13 @@ exports.signup = async (req, res) => {
   const { username, password } = req.body;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
+    const initialBalance = 100000.00;
+
     const result = await pool.query(
-      'INSERT INTO users (username, password, balance) VALUES ($1, $2, $3) RETURNING *',
-      [username, hashedPassword, 100000.00]
+      'INSERT INTO users (username, password, balance, buying_power, created_on) VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
+      [username, hashedPassword, initialBalance, initialBalance]
     );
-    
+
     const userId = result.rows[0].user_id;
 
     // Create portfolio for user
@@ -35,7 +37,10 @@ exports.login = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(400).json({ message: 'Invalid username or password' });
     }
-    const token = jwt.sign({ userId: user.user_id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    await pool.query('UPDATE users SET last_login = NOW() WHERE user_id = $1', [user.user_id]);
+
+    const token = jwt.sign({ userId: user.user_id }, process.env.JWT_SECRET, { expiresIn: '12h' });
     res.status(200).json({ message: 'Login successful', token });
   } catch (error) {
     res.status(500).json({ message: 'Error logging in', error });
