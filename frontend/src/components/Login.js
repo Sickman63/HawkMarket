@@ -92,10 +92,9 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log('Attempting to log in with:', { username, password });
+      console.log('Attempting to log in with:', { username});
       const response = await axios.post('/auth/login', { username, password });
       localStorage.setItem('token', response.data.token);
-      console.log('Login successful, token saved:', response.data.token);
       navigate('/dashboard');
     } catch (error) {
       setError('Error logging in');
