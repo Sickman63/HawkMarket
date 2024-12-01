@@ -59,6 +59,18 @@ async function setupDatabase() {
     `);
     console.log('Transactions table created successfully');
 
+     // Create stock table
+     await pool.query(`
+      CREATE TABLE IF NOT EXISTS stock (
+        symbol VARCHAR(10) PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        market VARCHAR(255) NOT NULL,
+        current_price NUMERIC(15, 2) NOT NULL,
+        last_updated TIMESTAMP WITHOUT TIME ZONE DEFAULT now()
+      );
+    `);
+    console.log('Stock table created successfully');
+
   } catch (error) {
     console.error('Error setting up database:', error);
   } finally {
