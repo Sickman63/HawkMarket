@@ -52,15 +52,30 @@ const Td = styled.td`
 
 const Leaderboards = () => {
   const [leaderboard, setLeaderboard] = useState([]);
+  const [userInfo, setUserInfo] = useState({ balance: null, buying_power: null });
 
   useEffect(() => {
+    // Fetch user information
+    const fetchUserInfo = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await axios.get('/users/user-info', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setUserInfo(response.data);
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      }
+    };
+    fetchUserInfo();
+
+    // Fetch leaderboard data
     const fetchLeaderboard = async () => {
       const token = localStorage.getItem('token');
       try {
         const response = await axios.get('/leaderboard', {
           headers: { Authorization: `Bearer ${token}` }
         });
-        console.log('Leaderboard Data Received:', response.data); // Log the response data
         setLeaderboard(response.data);
       } catch (error) {
         console.error('Error fetching leaderboard:', error);
@@ -73,6 +88,10 @@ const Leaderboards = () => {
     <Container>
       <Header>
         <h1>Leaderboard</h1>
+        <div>
+          <p>Account Value: ${userInfo.balance !== null ? userInfo.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 'Loading...'}</p>
+          <p>Buying Power: ${userInfo.buying_power !== null ? userInfo.buying_power.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 'Loading...'}</p>
+        </div>
       </Header>
 
       <Section>
@@ -95,9 +114,9 @@ const Leaderboards = () => {
                     {user.username || 'N/A'}
                   </Link>
                 </Td>
-                <Td>${(user.totalvalue != null ? parseFloat(user.totalvalue) : 0).toFixed(2)}</Td>
+                <Td>${(user.totalvalue != null ? parseFloat(user.totalvalue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00')}</Td>
                 <Td style={{ color: (user.percentgains != null && user.percentgains < 0) ? 'red' : 'green' }}>
-                  {(user.percentgains != null ? parseFloat(user.percentgains) : 0).toFixed(2)}%
+                  {(user.percentgains != null ? parseFloat(user.percentgains).toFixed(2) : '0.00')}%
                 </Td>
               </tr>
             )) : (

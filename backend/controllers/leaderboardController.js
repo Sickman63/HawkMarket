@@ -6,7 +6,7 @@ exports.getLeaderboard = async (req, res) => {
     const result = await pool.query(`
       SELECT username, balance AS totalValue, 0.00 AS percentGains
       FROM users
-      ORDER BY balance
+      ORDER BY balance DESC
     `);
     
     res.status(200).json(result.rows);

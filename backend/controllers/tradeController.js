@@ -1,6 +1,5 @@
 const pool = require('../database/connection');
 const stockService = require('../services/stockService');
-const { updateUserBalance } = require('../services/userService');
 
 // Buy Stock Function
 exports.buyStock = async (req, res) => {
@@ -16,12 +15,15 @@ exports.buyStock = async (req, res) => {
     }
     const user = userResult.rows[0];
 
-    // Fetch the current stock price using the stockService
-    const stockInfo = await stockService.asyncFindStockInfoFromSymbol(symbol, market);
-    const price = parseFloat(stockInfo.price);
+    // Get the current stock price from the database, instead of scraping
+    const stockPriceResult = await pool.query('SELECT current_price FROM stock WHERE symbol = $1', [symbol]);
+    if (stockPriceResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Stock not found' });
+    }
 
+    const price = parseFloat(stockPriceResult.rows[0].current_price);
     if (isNaN(price) || price <= 0) {
-      return res.status(400).json({ message: 'Invalid stock price fetched' });
+      return res.status(400).json({ message: 'Invalid stock price fetched from the database' });
     }
 
     // Calculate the total cost of purchasing the stock
@@ -36,6 +38,10 @@ exports.buyStock = async (req, res) => {
     try {
       // Begin a transaction
       await client.query('BEGIN');
+
+      // Lock rows to prevent concurrent modifications
+      await client.query('SELECT * FROM users WHERE user_id = $1 FOR UPDATE', [userId]);
+      await client.query('SELECT * FROM stock WHERE symbol = $1 FOR UPDATE', [symbol]);
 
       // Deduct the cost from the user's buying power
       await client.query('UPDATE users SET buying_power = buying_power - $1 WHERE user_id = $2', [cost, userId]);
@@ -65,11 +71,11 @@ exports.buyStock = async (req, res) => {
         DO UPDATE SET quantity = stock_holdings.quantity + EXCLUDED.quantity;
       `, [portfolioId, symbol, market, quantity, price]);
 
+      // Update `updated_on` timestamp in portfolio
+      await client.query('UPDATE portfolio SET updated_on = NOW() WHERE portfolio_id = $1', [portfolioId]);
+
       // Commit the transaction
       await client.query('COMMIT');
-
-      // Update the user's balance after the transaction
-      await updateUserBalance(userId);
 
       res.status(200).json({ message: 'Stock purchased successfully', currentPrice: price });
     } catch (error) {
@@ -107,11 +113,15 @@ exports.sellStock = async (req, res) => {
 
     const portfolioId = portfolioResult.rows[0].portfolio_id;
 
-    // Fetch the current stock price using the stockService
-    const stockInfo = await stockService.asyncFindStockInfoFromSymbol(symbol, market);
-    const price = parseFloat(stockInfo.price);
+    // Get the current stock price from the database, instead of scraping
+    const stockPriceResult = await pool.query('SELECT current_price FROM stock WHERE symbol = $1', [symbol]);
+    if (stockPriceResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Stock not found' });
+    }
+
+    const price = parseFloat(stockPriceResult.rows[0].current_price);
     if (isNaN(price) || price <= 0) {
-      return res.status(400).json({ message: 'Invalid stock price fetched' });
+      return res.status(400).json({ message: 'Invalid stock price fetched from the database' });
     }
 
     const proceeds = price * quantity;
@@ -120,6 +130,10 @@ exports.sellStock = async (req, res) => {
     try {
       // Begin a transaction
       await client.query('BEGIN');
+
+      // Lock rows to prevent concurrent modifications
+      await client.query('SELECT * FROM users WHERE user_id = $1 FOR UPDATE', [userId]);
+      await client.query('SELECT * FROM stock WHERE symbol = $1 FOR UPDATE', [symbol]);
 
       // Update the user's buying power with the proceeds of the sale
       await client.query('UPDATE users SET buying_power = buying_power + $1 WHERE user_id = $2', [proceeds, userId]);
@@ -144,11 +158,11 @@ exports.sellStock = async (req, res) => {
         WHERE portfolio_id = $1 AND symbol = $2 AND quantity <= 0
       `, [portfolioId, symbol]);
 
+      // Update `updated_on` timestamp in portfolio
+      await client.query('UPDATE portfolio SET updated_on = NOW() WHERE portfolio_id = $1', [portfolioId]);
+
       // Commit the transaction
       await client.query('COMMIT');
-
-      // Update the user's balance after the transaction
-      await updateUserBalance(userId);
 
       res.status(200).json({ message: 'Stock sold successfully', currentPrice: price });
     } catch (error) {

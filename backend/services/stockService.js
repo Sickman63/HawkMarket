@@ -72,7 +72,6 @@ async function updateStockPrices() {
     { symbol: 'PEP', market: 'NASDAQ' },
     { symbol: 'XOM', market: 'NYSE' },
     { symbol: 'NKE', market: 'NYSE' },
-    // Add more stocks as needed
   ];
 
   for (let stock of stockList) {
@@ -90,9 +89,64 @@ async function updateStockPrices() {
              last_updated = EXCLUDED.last_updated;`,
         [stockData.symbol, stockData.market, stockData.name, stockData.price, new Date()]
       );
+
+      // Update account values for users holding this stock
+      await updateUserAccountValues(stock.symbol);
     } catch (error) {
       console.error(`Error updating stock ${stock.symbol}:`, error);
     }
+  }
+}
+
+// Function to update account values for users holding a specific stock
+async function updateUserAccountValues(symbol) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Get all users holding this stock
+    const usersHoldingStock = await client.query(`
+      SELECT DISTINCT p.user_id
+      FROM stock_holdings sh
+      JOIN portfolio p ON sh.portfolio_id = p.portfolio_id
+      WHERE sh.symbol = $1
+    `, [symbol]);
+
+    for (const user of usersHoldingStock.rows) {
+      const userId = user.user_id;
+
+      // Lock the user's row before recalculating the balance
+      await client.query('SELECT * FROM users WHERE user_id = $1 FOR UPDATE', [userId]);
+
+      // Calculate the updated portfolio value
+      const portfolioValueResult = await client.query(`
+        SELECT COALESCE(SUM(sh.quantity * s.current_price), 0) AS portfolio_value
+        FROM stock_holdings sh
+        JOIN stock s ON sh.symbol = s.symbol
+        WHERE sh.portfolio_id = (SELECT portfolio_id FROM portfolio WHERE user_id = $1)
+      `, [userId]);
+
+      const portfolioValue = parseFloat(portfolioValueResult.rows[0].portfolio_value);
+
+      // Get the user's current buying power
+      const userResult = await client.query('SELECT buying_power FROM users WHERE user_id = $1', [userId]);
+      if (userResult.rows.length === 0) {
+        continue;
+      }
+      const buyingPower = parseFloat(userResult.rows[0].buying_power);
+
+      // Update the user's account value (balance)
+      const newBalance = portfolioValue + buyingPower;
+      await client.query('UPDATE users SET balance = $1 WHERE user_id = $2', [newBalance, userId]);
+    }
+
+    await client.query('COMMIT');
+    console.log(`Updated user account values for all users holding stock ${symbol}.`);
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error updating user account values:', error);
+  } finally {
+    client.release();
   }
 }
 
@@ -122,5 +176,6 @@ async function getStockDataFromDB(symbol) {
 module.exports = {
   asyncFindStockInfoFromSymbol,
   updateStockPrices,
+  updateUserAccountValues,
   getStockDataFromDB
 };
