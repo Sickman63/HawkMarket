@@ -3,35 +3,67 @@ import styled from 'styled-components';
 import axios from '../api/axiosConfig';
 import { Link } from 'react-router-dom';
 
+// Container for the entire leaderboard page
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
-  background-color: #1c1e26;
-  color: #f5f5f5;
+  padding: 40px 20px;
+  background-color: #121212;
+  color: #f0f0f0;
+  min-height: 100vh;
 `;
 
+// Header Styling
 const Header = styled.header`
   width: 100%;
-  padding: 20px;
-  background-color: #2c3e50;
+  max-width: 1200px;
+  background-color: #1f1f1f;
+  padding: 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  margin-bottom: 30px;
+
+  h1 {
+    font-size: 2.2rem;
+    color: #00bcd4;
+  }
+
+  div {
+    p {
+      font-size: 1.2rem;
+      margin: 0;
+    }
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
 `;
 
+// Section Styling for the leaderboard table
 const Section = styled.section`
-  width: 80%;
-  background-color: #2e3241;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin-top: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 1200px;
+  background-color: #1f1f1f;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  margin-bottom: 30px;
+
+  h2 {
+    color: #00bcd4;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+  }
 `;
 
+// Table Styling
 const Table = styled.table`
   width: 100%;
   margin-top: 1rem;
@@ -39,15 +71,34 @@ const Table = styled.table`
   color: #f5f5f5;
 `;
 
+// Table Header Styling
 const Th = styled.th`
-  padding: 10px;
+  padding: 15px;
   background-color: #4a90e2;
   text-align: left;
+  font-size: 1.1rem;
 `;
 
+// Table Cell Styling
 const Td = styled.td`
-  padding: 10px;
+  padding: 15px;
   border-bottom: 1px solid #444;
+  font-size: 1rem;
+  text-align: left;
+
+  &:first-child {
+    text-align: center;
+  }
+`;
+
+// Link Styling for user profile links
+const UserLink = styled(Link)`
+  color: #61dafb;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const Leaderboards = () => {
@@ -110,18 +161,20 @@ const Leaderboards = () => {
               <tr key={user.username}>
                 <Td>{index + 1}</Td>
                 <Td>
-                  <Link to={`/profile/${user.username}`} style={{ color: '#61dafb', textDecoration: 'none' }}>
+                  <UserLink to={`/profile/${user.username}`}>
                     {user.username || 'N/A'}
-                  </Link>
+                  </UserLink>
                 </Td>
-                <Td>${(user.totalvalue != null ? parseFloat(user.totalvalue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00')}</Td>
-                <Td style={{ color: (user.percentgains != null && user.percentgains < 0) ? 'red' : 'green' }}>
-                  {(user.percentgains != null ? parseFloat(user.percentgains).toFixed(2) : '0.00')}%
+                <Td>
+                  ${user.totalvalue != null ? parseFloat(user.totalvalue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
+                </Td>
+                <Td style={{ color: user.percentgains != null && user.percentgains < 0 ? 'red' : 'green' }}>
+                  {user.percentgains != null ? parseFloat(user.percentgains).toFixed(2) : '0.00'}%
                 </Td>
               </tr>
             )) : (
               <tr>
-                <Td colSpan="4">No leaderboard data available</Td>
+                <Td colSpan="4" style={{ textAlign: 'center' }}>No leaderboard data available</Td>
               </tr>
             )}
           </tbody>

@@ -2,8 +2,39 @@ const pool = require('../database/connection');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+// Password validation function
+function validatePassword(password) {
+  const minLength = 8;
+  const uppercasePattern = /[A-Z]/;
+  const numberPattern = /[0-9]/;
+  const specialCharacterPattern = /[!@#$%^&*(),.?":{}|<>]/;
+
+  if (password.length < minLength) {
+    return `Password must be longer than ${minLength} characters long.`;
+  }
+  if (!uppercasePattern.test(password)) {
+    return 'Password must contain at least one uppercase letter.';
+  }
+  if (!numberPattern.test(password)) {
+    return 'Password must contain at least one number.';
+  }
+  if (!specialCharacterPattern.test(password)) {
+    return 'Password must contain at least one special character.';
+  }
+
+  return null; // Valid password
+}
+
+
 exports.signup = async (req, res) => {
   const { username, password } = req.body;
+
+  // Validate the password
+  const validationError = validatePassword(password);
+  if (validationError) {
+    return res.status(400).json({ message: validationError });
+  }
+
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const initialBalance = 100000.00;

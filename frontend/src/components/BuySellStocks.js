@@ -8,66 +8,114 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
-  background-color: #1c1e26;
-  color: #f5f5f5;
+  padding: 40px 20px;
+  background-color: #121212;
+  color: #f0f0f0;
+  min-height: 100vh;
 `;
 
+// Header Styling
 const Header = styled.header`
   width: 100%;
-  padding: 20px;
-  background-color: #2c3e50;
+  max-width: 1200px;
+  background-color: #1f1f1f;
+  padding: 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  margin-bottom: 30px;
+
+  h1 {
+    font-size: 2.2rem;
+    color: #00bcd4;
+  }
+
+  div {
+    p {
+      font-size: 1.2rem;
+      margin: 0;
+    }
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
 `;
 
-const FormContainer = styled.div`
+// Section Styling
+const Section = styled.section`
   width: 100%;
-  margin-top: 1.5rem;
+  max-width: 1200px;
+  background-color: #1f1f1f;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  margin-bottom: 30px;
+
+  h2 {
+    color: #00bcd4;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+  }
 `;
 
-const StockInfoContainer = styled.div`
-  width: 100%;
-  margin-top: 1.5rem;
-  background-color: #3a3f4b;
-  padding: 1.5rem;
-  border-radius: 8px;
-`;
-
-const TradeForm = styled.form`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-top: 1.5rem;
-`;
-
+// Input Styling
 const Input = styled.input`
-  padding: 0.75rem;
+  padding: 15px;
   font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  width: 90%;
+  max-width: 500px;
+  background-color: #2a2a2a;
+  color: #f0f0f0;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
+// Select Styling
 const Select = styled.select`
-  padding: 0.75rem;
+  padding: 15px;
   font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background-color: #2a2a2a;
+  color: #f0f0f0;
+  width: 90%;
+  max-width: 500px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
+// Button Styling
 const Button = styled.button`
-  grid-column: span 2;
-  padding: 0.75rem;
-  font-size: 1rem;
+  padding: 15px;
+  font-size: 1.1rem;
   color: white;
-  background-color: #4a90e2;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  margin-top: 15px;
+  width: 100%;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  }
+`;
+
+const PreviewButton = styled(Button)`
+  background-color: #4a90e2;
 
   &:hover {
     background-color: #357ab8;
@@ -82,59 +130,26 @@ const ClearButton = styled(Button)`
   }
 `;
 
+// Suggestions List Styling
 const SuggestionsList = styled.ul`
   list-style-type: none;
   padding: 0;
-  margin-top: 0.5rem;
   width: 100%;
   max-height: 150px;
   overflow-y: auto;
   background-color: #2e3241;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+  border-radius: 8px;
+  border: 1px solid #444;
+  margin-bottom: 15px;
 `;
 
 const SuggestionItem = styled.li`
   padding: 10px;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 
   &:hover {
     background-color: #4a90e2;
-  }
-`;
-
-const LoadingIndicator = styled.p`
-  color: #4a90e2;
-`;
-
-const PreviewContainer = styled.div`
-  width: 100%;
-  margin-top: 1.5rem;
-  background-color: #3a3f4b;
-  padding: 1.5rem;
-  border-radius: 8px;
-  text-align: left;
-`;
-
-const PreviewButtonContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
-`;
-
-const ChangeOrderButton = styled(Button)`
-  background-color: #f0ad4e;
-
-  &:hover {
-    background-color: #ec971f;
-  }
-`;
-
-const ConfirmTradeButton = styled(Button)`
-  background-color: #4a90e2;
-
-  &:hover {
-    background-color: #357ab8;
   }
 `;
 
@@ -150,7 +165,7 @@ const BuySellStocks = () => {
   const [loading, setLoading] = useState(false);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const [previewDetails, setPreviewDetails] = useState(null);
-  const [isConfirmed, setIsConfirmed] = useState(null); // New state for trade confirmation
+  const [isConfirmed, setIsConfirmed] = useState(null);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -185,7 +200,7 @@ const BuySellStocks = () => {
         setLoading(false);
         return;
       }
-  
+
       try {
         const stocksRes = await axios.get('/stocks', { params: { symbol } });
         if (stocksRes.data && stocksRes.data.length === 0) {
@@ -193,7 +208,7 @@ const BuySellStocks = () => {
           setStocks([]);
         } else {
           setStocks(Array.isArray(stocksRes.data) ? stocksRes.data : [stocksRes.data]);
-          setError(''); // Clear any previous errors
+          setError('');
         }
       } catch (error) {
         console.error('Error fetching stock data:', error);
@@ -247,7 +262,7 @@ const BuySellStocks = () => {
   const handleConfirmPreview = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post('/trades/' + (action.toLowerCase()), {
+      await axios.post(`/trades/${action.toLowerCase()}`, {
         symbol,
         market: selectedStock.market,
         quantity
@@ -255,7 +270,6 @@ const BuySellStocks = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      // Set the trade confirmation state
       setIsConfirmed({
         action,
         symbol,
@@ -263,7 +277,6 @@ const BuySellStocks = () => {
         name: selectedStock.name,
       });
 
-      // Clear form inputs and hide the form/preview
       setQuantity('');
       setSymbol('');
       setSelectedStock(null);
@@ -300,7 +313,7 @@ const BuySellStocks = () => {
       {!isConfirmed && (
         <>
           {!isPreviewing && (
-            <FormContainer>
+            <Section>
               <h2>Search for a Stock</h2>
               <Input
                 type="text"
@@ -309,7 +322,7 @@ const BuySellStocks = () => {
                 onChange={handleSymbolChange}
                 required
               />
-              {loading && <LoadingIndicator>Loading...</LoadingIndicator>}
+              {loading && <p>Loading...</p>}
               {filteredStocks.length > 0 && (
                 <SuggestionsList>
                   {filteredStocks.map(stock => (
@@ -320,23 +333,23 @@ const BuySellStocks = () => {
                 </SuggestionsList>
               )}
               {error && <p style={{ color: 'red' }}>{error}</p>}
-            </FormContainer>
+            </Section>
           )}
 
           {selectedStock && !isPreviewing && (
-            <StockInfoContainer>
+            <Section>
               <h3>{selectedStock.name} ({selectedStock.symbol})</h3>
               <p>Current Price: ${selectedStock.current_price}</p>
-              <p>Day's High: ${selectedStock.high || "N/A"}</p>
-              <p>Day's Low: ${selectedStock.low || "N/A"}</p>
-              <p>Volume: {selectedStock.volume || "N/A"}</p>
-            </StockInfoContainer>
+              <p>Day's High: ${selectedStock.high || 'N/A'}</p>
+              <p>Day's Low: ${selectedStock.low || 'N/A'}</p>
+              <p>Volume: {selectedStock.volume || 'N/A'}</p>
+            </Section>
           )}
 
-          <FormContainer>
-            <h2>Trade Form</h2>
-            {!isPreviewing && (
-              <TradeForm onSubmit={handlePreview}>
+          {!isPreviewing && (
+            <Section>
+              <h2>Trade Form</h2>
+              <form onSubmit={handlePreview}>
                 <Input
                   type="number"
                   placeholder="Quantity"
@@ -348,54 +361,56 @@ const BuySellStocks = () => {
                   <option value="Buy">Buy</option>
                   <option value="Sell">Sell</option>
                 </Select>
-                <Button type="submit">Preview Order</Button>
+                <PreviewButton type="submit">Preview Order</PreviewButton>
                 <ClearButton type="button" onClick={handleClear}>Clear</ClearButton>
-              </TradeForm>
-            )}
-          </FormContainer>
+              </form>
+            </Section>
+          )}
 
           {isPreviewing && previewDetails && (
-            <PreviewContainer>
+            <Section>
               <h3>Preview Order</h3>
               <p>Stock: {previewDetails.name} ({previewDetails.symbol})</p>
               <p>Price: ${previewDetails.price}</p>
               <p>Quantity: {previewDetails.quantity}</p>
               <p>Total: ${previewDetails.total}</p>
-              <PreviewButtonContainer>
-                <ChangeOrderButton type="button" onClick={handleChangeOrder}>Change Order</ChangeOrderButton>
-                <ConfirmTradeButton type="button" onClick={handleConfirmPreview}>Confirm Trade</ConfirmTradeButton>
-              </PreviewButtonContainer>
-            </PreviewContainer>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
+                <Button type="button" onClick={handleChangeOrder} style={{ backgroundColor: '#f0ad4e' }}>Change Order</Button>
+                <Button type="button" onClick={handleConfirmPreview} style={{ backgroundColor: '#4a90e2' }}>Confirm Trade</Button>
+              </div>
+            </Section>
           )}
         </>
       )}
 
       {isConfirmed && (
-        <StockInfoContainer>
+        <Section>
           <h3>Trade Confirmation</h3>
           <p>{isConfirmed.action} Market order for {isConfirmed.symbol} ({isConfirmed.name}) received.</p>
           <p>Your order has been received and will be executed shortly.</p>
           <ul>
-            <li>To submit another stock order, 
-            <button 
-              onClick={handleClear}
-              style={{ 
-                background: 'none', 
-                border: 'none', 
-                color: '#61dafb', 
-                textDecoration: 'underline', 
-                cursor: 'pointer',
-                padding: '0',
-                fontSize: 'inherit',
-                fontFamily: 'inherit',
-                display: 'inline',
-              }}
-            >
-              click here
-            </button>.</li>
+            <li>
+              To submit another stock order, 
+              <button 
+                onClick={handleClear}
+                style={{ 
+                  background: 'none', 
+                  border: 'none', 
+                  color: '#61dafb', 
+                  textDecoration: 'underline', 
+                  cursor: 'pointer',
+                  padding: '0',
+                  fontSize: 'inherit',
+                  fontFamily: 'inherit',
+                  display: 'inline',
+                }}
+              >
+                click here
+              </button>.
+            </li>
             <li>To return to your portfolio summary, <Link to="/dashboard">click here</Link>.</li>
           </ul>
-        </StockInfoContainer>
+        </Section>
       )}
     </Container>
   );
