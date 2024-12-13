@@ -80,5 +80,3 @@ To set up the project locally, follow these steps:
 5. Create a pull request.
 
 Thank you for using HawkMarket!
-```
-
