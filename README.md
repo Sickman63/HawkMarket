@@ -8,11 +8,6 @@ Welcome to the HawkMarket Virtual Stock Exchange Simulator! This project is desi
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Setup and Installation](#setup-and-installation)
-- [Development](#development)
-- [API Endpoints](#api-endpoints)
-- [UI/UX Design](#uiux-design)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Project Overview
 
@@ -31,11 +26,9 @@ HawkMarket is a web application that allows users to:
 
 ## Tech Stack
 
-- **Frontend**: React, Redux, Axios
+- **Frontend**: React, Axios
 - **Backend**: Node.js, Express
 - **Database**: PostgreSQL
-- **Design**: Figma for UI/UX wireframes and mockups
-- **Testing**: Jest, Cypress
 
 ## Setup and Installation
 
@@ -77,45 +70,6 @@ To set up the project locally, follow these steps:
      cd ../frontend
      npm start
      ```
-
-## Development
-
-### Backend
-
-- **Folder Structure**:
-  - `src/controllers` - API controllers
-  - `src/routes` - API routes
-  - `src/models` - Database models
-  - `src/config` - Configuration files
-
-### Frontend
-
-- **Folder Structure**:
-  - `src/components` - React components
-  - `src/pages` - Page components
-  - `src/redux` - Redux actions and reducers
-  - `src/styles` - Tailwind CSS configuration and styles
-
-## API Endpoints
-
-- **User**:
-  - `POST /api/users/register` - Register a new user
-  - `POST /api/users/login` - Log in a user
-
-- **Stocks**:
-  - `GET /api/stocks` - Get real-time stock data
-  - `POST /api/stocks/trade` - Execute a stock trade
-
-- **Portfolio**:
-  - `GET /api/portfolio` - Get user portfolio
-  - `PUT /api/portfolio` - Update user portfolio
-
-- **Leaderboard**:
-  - `GET /api/leaderboard` - Get leaderboard data
-
-## UI/UX Design
-
-Design wireframes and interactive mockups are created using Figma. Refer to the `Figma` folder for design assets and prototypes.
 
 ## How to Update
 
